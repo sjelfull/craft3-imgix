@@ -86,20 +86,24 @@ To use with Element API, you can call the service directly:
 
 ```php
 <?php
-namespace Craft;
+
+use craft\elements\Entry;
+use craft\helpers\UrlHelper;
+use superbig\imgix\Imgix;
 
 return [
     'endpoints' => [
         'news.json' => [
-            'elementType' => ElementType::Entry,
+            'elementType' => Entry::class,
             'criteria' => ['section' => 'news'],
-            'transformer' => function(EntryModel $entry) {
-                $asset = $entry->featuredImage->first();
-                $featuredImage = craft()->imgix->transformImage( $asset, [ 'width' => 400, 'height' => 350 ]);
+            'transformer' => function(Entry $entry) {
+                $asset = $entry->featuredImage->one();
+                $featuredImage = Imgix::$plugin->imgixService->transformImage( $asset, [ 'width' => 400, 'height' => 350 ]);
+                
                 return [
                     'title' => $entry->title,
                     'url' => $entry->url,
-                    'jsonUrl' => UrlHelper::getUrl("news/{$entry->id}.json"),
+                    'jsonUrl' => UrlHelper::url("news/{$entry->id}.json"),
                     'summary' => $entry->summary,
                     'featuredImage' => $featuredImage,
                 ];
