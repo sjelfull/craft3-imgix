@@ -178,15 +178,24 @@ class ImgixModel extends Model
         if ( $image instanceof Asset ) {
             $source       = $image->getVolume();
             $sourceHandle = $source->handle;
-            $domains      = Imgix::$plugin->getSettings()->imgixDomains;
-            $domain       = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
+            $focalPoint   = $image->getFocalPoint();
+
+            $domains = Imgix::$plugin->getSettings()->imgixDomains;
+            $domain  = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            $this->imagePath      = $image->getUri();
-            $this->transforms     = $transforms;
+            $this->imagePath  = $image->getUri();
+            $this->transforms = $transforms;
+
+            if ( !empty($focalPoint) ) {
+                $defaultOptions['fp-x'] = $focalPoint['x'];
+                $defaultOptions['fp-y'] = $focalPoint['y'];
+            }
+
             $this->defaultOptions = $defaultOptions;
+
             $this->transform($transforms);
         }
         elseif ( gettype($image) === 'string' ) {
