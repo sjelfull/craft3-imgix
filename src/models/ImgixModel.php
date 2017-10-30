@@ -10,6 +10,8 @@
 
 namespace superbig\imgix\models;
 
+use craft\elements\Asset;
+use craft\helpers\Template;
 use Imgix\UrlBuilder;
 use superbig\imgix\Imgix;
 
@@ -171,8 +173,10 @@ class ImgixModel extends Model
     {
         parent::__construct();
         $this->lazyLoadPrefix = Imgix::$plugin->getSettings()->lazyLoadPrefix ?: 'data-';
-        if ( get_class($image) == 'Craft\AssetFileModel' or get_class($image) == 'Craft\FocusPoint_AssetFileModel' ) {
-            $source       = $image->source;
+
+        /** @var null|Asset $image */
+        if ( $image instanceof Asset ) {
+            $source       = $image->getVolume();
             $sourceHandle = $source->handle;
             $domains      = Imgix::$plugin->getSettings()->imgixDomains;
             $domain       = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
@@ -180,7 +184,7 @@ class ImgixModel extends Model
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            $this->imagePath      = $image->path;
+            $this->imagePath      = $image->getUri();
             $this->transforms     = $transforms;
             $this->defaultOptions = $defaultOptions;
             $this->transform($transforms);
@@ -214,7 +218,7 @@ class ImgixModel extends Model
                 }
                 $tagAttributes = $this->getTagAttributes($attributes);
 
-                return TemplateHelper::getRaw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $image['url'] . '" ' . $tagAttributes . ' />');
+                return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $image['url'] . '" ' . $tagAttributes . ' />');
             }
         }
 
@@ -253,7 +257,7 @@ class ImgixModel extends Model
             }
             $tagAttributes = $this->getTagAttributes($attributes);
 
-            return TemplateHelper::getRaw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $images[0]['url'] . '" ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'srcset="' . $srcset . '" ' . $tagAttributes . ' />');
+            return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $images[0]['url'] . '" ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'srcset="' . $srcset . '" ' . $tagAttributes . ' />');
         }
 
         return null;
@@ -321,9 +325,11 @@ class ImgixModel extends Model
         if ( !isset($transform['ratio']) ) {
             return $transform;
         }
+
         $ratio = (float)$transform['ratio'];
         $w     = isset($transform['w']) ? $transform['w'] : null;
         $h     = isset($transform['h']) ? $transform['h'] : null;
+
         // If both sizes and ratio is specified, let ratio take control based on width
         if ( $w and $h ) {
             $transform['h'] = round($w / $ratio);

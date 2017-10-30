@@ -15,6 +15,7 @@ use superbig\imgix\Imgix;
 
 use Craft;
 use craft\base\Component;
+use superbig\imgix\models\ImgixModel;
 
 /**
  * @author    Superbig
@@ -31,8 +32,6 @@ class ImgixService extends Component
     public function init ()
     {
         parent::init();
-        $imgixDomain   = Imgix::$plugin->getSetting('imgixDomain');
-        $this->builder = new UrlBuilder($imgixDomain);
     }
 
     /**
@@ -45,10 +44,5 @@ class ImgixService extends Component
         $pathsModel = new ImgixModel($asset, $transforms, $defaultOptions);
 
         return $pathsModel;
-    }
-
-    public function getSetting ($setting)
-    {
-        return craft()->config->get($setting, 'imgix');
     }
 }

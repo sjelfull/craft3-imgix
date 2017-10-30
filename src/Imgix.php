@@ -10,6 +10,7 @@
 
 namespace superbig\imgix;
 
+use superbig\imgix\models\Settings;
 use superbig\imgix\services\ImgixService as ImgixServiceService;
 use superbig\imgix\variables\ImgixVariable;
 
@@ -46,7 +47,7 @@ class Imgix extends Plugin
     /**
      * @inheritdoc
      */
-    public function init()
+    public function init ()
     {
         parent::init();
         self::$plugin = $this;
@@ -61,20 +62,11 @@ class Imgix extends Plugin
             }
         );
 
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_INSTALL_PLUGIN,
-            function (PluginEvent $event) {
-                if ($event->plugin === $this) {
-                }
-            }
-        );
-
         Craft::info(
             Craft::t(
                 'imgix',
                 '{name} plugin loaded',
-                ['name' => $this->name]
+                [ 'name' => $this->name ]
             ),
             __METHOD__
         );
@@ -83,4 +75,11 @@ class Imgix extends Plugin
     // Protected Methods
     // =========================================================================
 
+    /**
+     * @inheritdoc
+     */
+    protected function createSettingsModel ()
+    {
+        return new Settings();
+    }
 }
