@@ -117,6 +117,7 @@ If you need to prefix with something other than `data-`, you can set the configu
 ## Imgix Roadmap
 
 * Look into improving srcset/API
+* Look into built-in image editor and focal points 
 * Improve docs
 
 Brought to you by [Superbig](https://superbig.co)
