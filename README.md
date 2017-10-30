@@ -2,7 +2,7 @@
 
 Use Imgix with Craft
 
-![Screenshot](resources/img/plugin-logo.png)
+![Screenshot](resources/img/plugin-icon.png)
 
 ## Requirements
 
