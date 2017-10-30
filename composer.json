@@ -1,0 +1,51 @@
+{
+    "name": "superbig/imgix",
+    "description": "Use Imgix with Craft",
+    "type": "craft-plugin",
+    "version": "2.0.0",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "imgix"
+    ],
+    "support": {
+        "docs": "https://github.com/sjelfull/imgix/blob/master/README.md",
+        "issues": "https://github.com/sjelfull/imgix/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Superbig",
+            "homepage": "https://superbig.co"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "~3.0.0-beta.23",
+        "imgix/imgix-php": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+          "superbig\\imgix\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Imgix",
+        "handle": "imgix",
+        "schemaVersion": "2.0.0",
+        "hasCpSettings": false,
+        "hasCpSection": false,
+        "changelogUrl": "https://raw.githubusercontent.com/sjelfull/imgix/master/CHANGELOG.md",
+        "components": {
+            "imgixService": "superbig\\imgix\\services\\ImgixService"
+        },
+        "class": "superbig\\imgix\\Imgix"
+    }
+}
