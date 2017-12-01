@@ -264,6 +264,7 @@ class ImgixModel extends Model
         if ( $images = $this->transformed ) {
             $widths = [];
             $result = '';
+
             foreach ($images as $image) {
                 $keys  = array_keys($image);
                 $width = $image['width'] ?? $image['w'] ?? null;
@@ -272,12 +273,15 @@ class ImgixModel extends Model
                     $result          .= $image['url'] . ' ' . $width . 'w, ';
                 }
             }
+
             $srcset   = substr($result, 0, strlen($result) - 2);
             $lazyLoad = false;
+
             if ( isset($attributes['lazyLoad']) ) {
                 $lazyLoad = $attributes['lazyLoad'];
                 unset($attributes['lazyLoad']); // unset to remove it from the html output
             }
+
             $tagAttributes = $this->getTagAttributes($attributes);
 
             return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $images[0]['url'] . '" ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'srcset="' . $srcset . '" ' . $tagAttributes . ' />');
@@ -298,12 +302,14 @@ class ImgixModel extends Model
         }
         if ( isset($transforms[0]) ) {
             $images = [];
+
             foreach ($transforms as $transform) {
                 $transform = array_merge($transform, $this->defaultOptions);
                 $transform = $this->calculateTargetSizeFromRatio($transform);
                 $url       = $this->buildTransform($this->imagePath, $transform);
                 $images[]  = array_merge($transform, [ 'url' => $url ]);
             }
+
             $this->transformed = $images;
         }
         else {
@@ -336,10 +342,12 @@ class ImgixModel extends Model
     private function translateAttributes ($attributes)
     {
         $translatedAttributes = [];
+
         foreach ($attributes as $key => $setting) {
             if ( array_key_exists($key, $this->attributesTranslate) ) {
                 $key = $this->attributesTranslate[ $key ];
             }
+
             $translatedAttributes[ $key ] = $setting;
         }
 
@@ -356,7 +364,9 @@ class ImgixModel extends Model
         if ( !$attributes ) {
             return '';
         }
+
         $tagAttributes = '';
+
         foreach ($attributes as $key => $attribute) {
             $tagAttributes .= ' ' . $key . '="' . $attribute . '"';
         }
@@ -396,6 +406,7 @@ class ImgixModel extends Model
                 return $transform;
             }
         }
+
         unset($transform['ratio']); // remove the ratio setting so that it doesn't gets processed in the URL
 
         return $transform;
