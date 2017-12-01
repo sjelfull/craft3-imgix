@@ -201,7 +201,7 @@ class ImgixModel extends Model
         }
         elseif ( gettype($image) === 'string' ) {
             $domains     = Imgix::$plugin->getSettings()->imgixDomains;
-            $firstHandle = array_keys($domains);
+            $firstHandle = reset($domains);
             $domain      = $domains[ $firstHandle ];
 
             $this->builder = new UrlBuilder($domain);
