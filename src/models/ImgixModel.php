@@ -217,6 +217,11 @@ class ImgixModel extends Model
         }
     }
 
+    /**
+     * @param null $attributes
+     *
+     * @return null|\Twig_Markup
+     */
     public function img ($attributes = null)
     {
         if ( $image = $this->transformed ) {
@@ -235,6 +240,9 @@ class ImgixModel extends Model
         return null;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function getUrl ()
     {
         if ( $image = $this->transformed ) {
@@ -246,7 +254,12 @@ class ImgixModel extends Model
         return null;
     }
 
-    public function srcset ($attributes)
+    /**
+     * @param $attributes
+     *
+     * @return null|\Twig_Markup
+     */
+    public function srcset ($attributes = [])
     {
         if ( $images = $this->transformed ) {
             $widths = [];
@@ -273,6 +286,11 @@ class ImgixModel extends Model
         return null;
     }
 
+    /**
+     * @param $transforms
+     *
+     * @return null
+     */
     protected function transform ($transforms)
     {
         if ( !$transforms ) {
@@ -297,6 +315,12 @@ class ImgixModel extends Model
         }
     }
 
+    /**
+     * @param $filename
+     * @param $transform
+     *
+     * @return string
+     */
     private function buildTransform ($filename, $transform)
     {
         $parameters = $this->translateAttributes($transform);
@@ -304,6 +328,11 @@ class ImgixModel extends Model
         return $this->builder->createURL($filename, $parameters);
     }
 
+    /**
+     * @param $attributes
+     *
+     * @return array
+     */
     private function translateAttributes ($attributes)
     {
         $translatedAttributes = [];
@@ -317,6 +346,11 @@ class ImgixModel extends Model
         return $translatedAttributes;
     }
 
+    /**
+     * @param $attributes
+     *
+     * @return string
+     */
     private function getTagAttributes ($attributes)
     {
         if ( !$attributes ) {
@@ -330,6 +364,11 @@ class ImgixModel extends Model
         return $tagAttributes;
     }
 
+    /**
+     * @param $transform
+     *
+     * @return mixed
+     */
     protected function calculateTargetSizeFromRatio ($transform)
     {
         if ( !isset($transform['ratio']) ) {
