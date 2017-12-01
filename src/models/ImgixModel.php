@@ -17,6 +17,7 @@ use superbig\imgix\Imgix;
 
 use Craft;
 use craft\base\Model;
+use yii\base\Exception;
 
 /**
  * @author    Superbig
