@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 ### Added
 - Added cache purging
 
+### Fixed
+- Fixed missing class reference
+- Fixed getting first imgix domain when passing in url string 
+
 ## 2.0.0 - 2017-10-29
 ### Added
 - Initial release
