@@ -28,6 +28,15 @@ class Settings extends Model
     // =========================================================================
 
     /**
+     * Imgix API key
+     *
+     * @var string
+     */
+    public $apiKey = '';
+
+    /**
+     * Volume handles mapped to Imgix domains
+     *
      * @var string
      */
     public $imgixDomains = [];
