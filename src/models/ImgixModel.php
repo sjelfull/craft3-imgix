@@ -186,6 +186,9 @@ class ImgixModel extends Model
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
+            
+            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
+                $this->builder->setSignKey($token);
 
             $this->imagePath  = $image->getUri();
             $this->transforms = $transforms;
@@ -206,6 +209,9 @@ class ImgixModel extends Model
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
+            
+            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
+                $this->builder->setSignKey($token);
 
             $this->imagePath      = $image;
             $this->transforms     = $transforms;

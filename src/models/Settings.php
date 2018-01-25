@@ -40,6 +40,13 @@ class Settings extends Model
      * @var string
      */
     public $imgixDomains = [];
+    
+    /**
+     * Imgix signed URLs token
+     *
+     * @var string
+     */
+    public $imgixSignedToken = '';
 
     /**
      * @var string
@@ -57,6 +64,8 @@ class Settings extends Model
         return [
             [ 'imgixDomains', 'array' ],
             [ 'imgixDomains', 'default', 'value' => [] ],
+            [ 'imgixSignedToken', 'string' ],
+            [ 'imgixSignedToken', 'default', 'value' => '' ],
             [ 'lazyLoadPrefix', 'string' ],
             [ 'lazyLoadPrefix', 'default', 'value' => '' ],
         ];
