@@ -192,6 +192,8 @@ class ImgixService extends Component
         if ( isset($domains[ $volume->handle ]) ) {
             $builder = new UrlBuilder($domains[ $volume->handle ]);
             $builder->setUseHttps(true);
+            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
+                $builder->setSignKey($token);
             $url = UrlHelper::stripQueryString($builder->createURL($assetUri));
         }
 

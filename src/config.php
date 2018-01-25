@@ -35,6 +35,8 @@ return [
     // Volume handles mapped to Imgix domains
     'imgixDomains'   => [],
 
+    // Imgix signed URLs token
+    'imgixSignedToken' => '',
 
     // Lazy load attribute prefix
     'lazyLoadPrefix' => '',
