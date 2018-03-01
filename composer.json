@@ -11,8 +11,8 @@
         "imgix"
     ],
     "support": {
-        "docs": "https://github.com/sjelfull/imgix/blob/master/README.md",
-        "issues": "https://github.com/sjelfull/imgix/issues"
+        "docs": "https://github.com/sjelfull/craft3-imgix/blob/master/README.md",
+        "issues": "https://github.com/sjelfull/craft3-imgix/issues"
     },
     "license": "MIT",
     "authors": [
@@ -42,7 +42,7 @@
         "schemaVersion": "2.0.0",
         "hasCpSettings": false,
         "hasCpSection": false,
-        "changelogUrl": "https://raw.githubusercontent.com/sjelfull/imgix/master/CHANGELOG.md",
+        "changelogUrl": "https://raw.githubusercontent.com/sjelfull/craft3-imgix/master/CHANGELOG.md",
         "components": {
             "imgixService": "superbig\\imgix\\services\\ImgixService"
         },
