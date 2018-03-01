@@ -190,7 +190,7 @@ class ImgixModel extends Model
             if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
                 $this->builder->setSignKey($token);
 
-            $this->imagePath  = $image->getUri();
+            $this->imagePath  = $image->getPath();
             $this->transforms = $transforms;
 
             if ( !empty($focalPoint) ) {
