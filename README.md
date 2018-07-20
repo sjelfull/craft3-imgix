@@ -22,10 +22,6 @@ To install the plugin, follow these instructions.
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Imgix.
 
-## Imgix Overview
-
--Insert text here-
-
 ## Configuring Imgix
 
 Copy `config.php` into Crafts `config` folder and rename it to `imgix.php`.
@@ -33,6 +29,23 @@ Copy `config.php` into Crafts `config` folder and rename it to `imgix.php`.
 Then map your Asset Source handle to your Imgix domain, according to the example.
 
 This plugin will lookup the Asset image's source handle, and figure out which Imgix domain to use. If a URL string is passed, it will use the first domain in the config file.
+
+```php
+<?php
+   return [
+       // Imgix API key
+       'apiKey'         => '',
+
+       // Volume handles mapped to Imgix domains
+       'imgixDomains'   => [],
+
+       // Imgix signed URLs token
+       'imgixSignedToken' => '',
+
+       // Lazy load attribute prefix
+       'lazyLoadPrefix' => '',
+   ];
+```
 
 ## Using Imgix
 
