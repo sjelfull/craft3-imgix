@@ -143,16 +143,16 @@ class ImgixModel extends Model
         'markscale',
         'markw',
         'markx',
-        'marky'
+        'marky',
     ];
-    protected $attributesTranslate = array(
+    protected $attributesTranslate = [
         'width'      => 'w',
         'height'     => 'h',
         'max-height' => 'max-h',
         'max-width'  => 'max-w',
         'min-height' => 'min-h',
         'max-width'  => 'min-w',
-    );
+    ];
     protected $transforms;
     protected $imagePath;
     protected $builder;
@@ -170,13 +170,13 @@ class ImgixModel extends Model
      *
      * @throws Exception
      */
-    public function __construct ($image, $transforms = null, $defaultOptions = [])
+    public function __construct($image, $transforms = null, $defaultOptions = [])
     {
         parent::__construct();
         $this->lazyLoadPrefix = Imgix::$plugin->getSettings()->lazyLoadPrefix ?: 'data-';
 
         /** @var null|Asset $image */
-        if ( $image instanceof Asset ) {
+        if ($image instanceof Asset) {
             $source       = $image->getVolume();
             $sourceHandle = $source->handle;
             $focalPoint   = $image->getFocalPoint();
@@ -186,14 +186,14 @@ class ImgixModel extends Model
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
-            
+
             if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
                 $this->builder->setSignKey($token);
 
             $this->imagePath  = $image->getPath();
             $this->transforms = $transforms;
 
-            if ( !empty($focalPoint) ) {
+            if (!empty($focalPoint)) {
                 $defaultOptions['fp-x'] = $focalPoint['x'];
                 $defaultOptions['fp-y'] = $focalPoint['y'];
             }
@@ -202,14 +202,14 @@ class ImgixModel extends Model
 
             $this->transform($transforms);
         }
-        elseif ( gettype($image) === 'string' ) {
+        elseif (gettype($image) === 'string') {
             $domains     = Imgix::$plugin->getSettings()->imgixDomains;
             $firstHandle = reset($domains);
             $domain      = $domains[ $firstHandle ];
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
-            
+
             if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
                 $this->builder->setSignKey($token);
 
@@ -228,12 +228,12 @@ class ImgixModel extends Model
      *
      * @return null|\Twig_Markup
      */
-    public function img ($attributes = null)
+    public function img($attributes = null)
     {
-        if ( $image = $this->transformed ) {
-            if ( $image && isset($image['url']) ) {
+        if ($image = $this->transformed) {
+            if ($image && isset($image['url'])) {
                 $lazyLoad = false;
-                if ( isset($attributes['lazyLoad']) ) {
+                if (isset($attributes['lazyLoad'])) {
                     $lazyLoad = $attributes['lazyLoad'];
                     unset($attributes['lazyLoad']); // unset to remove it from the html output
                 }
@@ -249,10 +249,10 @@ class ImgixModel extends Model
     /**
      * @return mixed|null
      */
-    public function getUrl ()
+    public function getUrl()
     {
-        if ( $image = $this->transformed ) {
-            if ( $image && isset($image['url']) ) {
+        if ($image = $this->transformed) {
+            if ($image && isset($image['url'])) {
                 return $image['url'];
             }
         }
@@ -265,16 +265,16 @@ class ImgixModel extends Model
      *
      * @return null|\Twig_Markup
      */
-    public function srcset ($attributes = [])
+    public function srcset($attributes = [])
     {
-        if ( $images = $this->transformed ) {
+        if ($images = $this->transformed) {
             $widths = [];
             $result = '';
 
             foreach ($images as $image) {
                 $keys  = array_keys($image);
                 $width = $image['width'] ?? $image['w'] ?? null;
-                if ( $width && !isset($widths[ $width ]) ) {
+                if ($width && !isset($widths[ $width ])) {
                     $withs[ $width ] = true;
                     $result          .= $image['url'] . ' ' . $width . 'w, ';
                 }
@@ -283,7 +283,7 @@ class ImgixModel extends Model
             $srcset   = substr($result, 0, strlen($result) - 2);
             $lazyLoad = false;
 
-            if ( isset($attributes['lazyLoad']) ) {
+            if (isset($attributes['lazyLoad'])) {
                 $lazyLoad = $attributes['lazyLoad'];
                 unset($attributes['lazyLoad']); // unset to remove it from the html output
             }
@@ -301,19 +301,19 @@ class ImgixModel extends Model
      *
      * @return null
      */
-    protected function transform ($transforms)
+    protected function transform($transforms)
     {
-        if ( !$transforms ) {
+        if (!$transforms) {
             return null;
         }
-        if ( isset($transforms[0]) ) {
+        if (isset($transforms[0])) {
             $images = [];
 
             foreach ($transforms as $transform) {
                 $transform = array_merge($transform, $this->defaultOptions);
                 $transform = $this->calculateTargetSizeFromRatio($transform);
                 $url       = $this->buildTransform($this->imagePath, $transform);
-                $images[]  = array_merge($transform, [ 'url' => $url ]);
+                $images[]  = array_merge($transform, ['url' => $url]);
             }
 
             $this->transformed = $images;
@@ -322,7 +322,7 @@ class ImgixModel extends Model
             $transforms        = array_merge($transforms, $this->defaultOptions);
             $transforms        = $this->calculateTargetSizeFromRatio($transforms);
             $url               = $this->buildTransform($this->imagePath, $transforms);
-            $image             = array_merge($transforms, [ 'url' => $url ]);
+            $image             = array_merge($transforms, ['url' => $url]);
             $this->transformed = $image;
         }
     }
@@ -333,7 +333,7 @@ class ImgixModel extends Model
      *
      * @return string
      */
-    private function buildTransform ($filename, $transform)
+    private function buildTransform($filename, $transform)
     {
         $parameters = $this->translateAttributes($transform);
 
@@ -345,12 +345,12 @@ class ImgixModel extends Model
      *
      * @return array
      */
-    private function translateAttributes ($attributes)
+    private function translateAttributes($attributes)
     {
         $translatedAttributes = [];
 
         foreach ($attributes as $key => $setting) {
-            if ( array_key_exists($key, $this->attributesTranslate) ) {
+            if (array_key_exists($key, $this->attributesTranslate)) {
                 $key = $this->attributesTranslate[ $key ];
             }
 
@@ -365,9 +365,9 @@ class ImgixModel extends Model
      *
      * @return string
      */
-    private function getTagAttributes ($attributes)
+    private function getTagAttributes($attributes)
     {
-        if ( !$attributes ) {
+        if (!$attributes) {
             return '';
         }
 
@@ -385,9 +385,9 @@ class ImgixModel extends Model
      *
      * @return mixed
      */
-    protected function calculateTargetSizeFromRatio ($transform)
+    protected function calculateTargetSizeFromRatio($transform)
     {
-        if ( !isset($transform['ratio']) ) {
+        if (!isset($transform['ratio'])) {
             return $transform;
         }
 
@@ -396,14 +396,14 @@ class ImgixModel extends Model
         $h     = isset($transform['h']) ? $transform['h'] : null;
 
         // If both sizes and ratio is specified, let ratio take control based on width
-        if ( $w and $h ) {
+        if ($w and $h) {
             $transform['h'] = round($w / $ratio);
         }
         else {
-            if ( $w ) {
+            if ($w) {
                 $transform['h'] = round($w / $ratio);
             }
-            elseif ( $h ) {
+            elseif ($h) {
                 $transform['w'] = round($h * $ratio);
             }
             else {
@@ -421,11 +421,11 @@ class ImgixModel extends Model
     /**
      * @inheritdoc
      */
-    public function rules ()
+    public function rules()
     {
         return [
-            [ 'transformed', 'array' ],
-            [ 'transformed', 'default', 'value' => [] ],
+            ['transformed', 'array'],
+            ['transformed', 'default', 'value' => []],
         ];
     }
 }
