@@ -189,15 +189,16 @@ class ImgixModel extends Model
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
+            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
                 $this->builder->setSignKey($token);
+            }
 
             $this->imagePath  = $image->getPath();
             $this->transforms = $transforms;
 
             if (!empty($focalPoint)) {
-                $defaultOptions['fp-x'] = $focalPoint['x'];
-                $defaultOptions['fp-y'] = $focalPoint['y'];
+                $defaultOptions['x'] = $focalPoint['x'];
+                $defaultOptions['y'] = $focalPoint['y'];
             }
 
             $this->defaultOptions = $defaultOptions;
