@@ -148,10 +148,12 @@ class ImgixModel extends Model
     protected $attributesTranslate = [
         'width'      => 'w',
         'height'     => 'h',
-        'max-height' => 'max-h',
+        'min-width'  => 'min-w',
         'max-width'  => 'max-w',
         'min-height' => 'min-h',
-        'max-width'  => 'min-w',
+        'max-height' => 'max-h',
+        'x'          => 'fp-x',
+        'y'          => 'fp-y',
     ];
     protected $transforms;
     protected $imagePath;
