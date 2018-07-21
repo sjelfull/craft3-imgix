@@ -312,7 +312,7 @@ class ImgixModel extends Model
             $images = [];
 
             foreach ($transforms as $transform) {
-                $transform = array_merge($transform, $this->defaultOptions);
+                $transform = array_merge($this->defaultOptions, $transform);
                 $transform = $this->calculateTargetSizeFromRatio($transform);
                 $url       = $this->buildTransform($this->imagePath, $transform);
                 $images[]  = array_merge($transform, ['url' => $url]);
@@ -321,7 +321,7 @@ class ImgixModel extends Model
             $this->transformed = $images;
         }
         else {
-            $transforms        = array_merge($transforms, $this->defaultOptions);
+            $transforms        = array_merge($this->defaultOptions, $transforms);
             $transforms        = $this->calculateTargetSizeFromRatio($transforms);
             $url               = $this->buildTransform($this->imagePath, $transforms);
             $image             = array_merge($transforms, ['url' => $url]);
