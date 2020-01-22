@@ -1,8 +1,19 @@
-# Imgix plugin for Craft CMS 3.x
+<!-- ix-docs-ignore -->
+# imgix plugin for Craft CMS 3.x
 
-Use Imgix with Craft
+Use imgix with Craft
 
 ![Screenshot](resources/img/plugin-icon.png)
+
+---
+<!-- /ix-docs-ignore -->
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuring imgix](#configuring-imgix)
+- [Using imgix](#using-imgix)
+- [Lazy Loading](#lazy-loading)
+- [Roadmap](#roadmap)
 
 ## Requirements
 
@@ -14,32 +25,36 @@ To install the plugin, follow these instructions.
 
 1. Open your terminal and go to your Craft project:
 
-        cd /path/to/project
+    ```
+    cd /path/to/project
+    ```
 
 2. Then tell Composer to load the plugin:
 
-        composer require superbig/craft3-imgix
+    ```
+    composer require superbig/craft3-imgix
+    ```
 
-3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Imgix.
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for imgix.
 
-## Configuring Imgix
+## Configuring imgix
 
 Copy `config.php` into Crafts `config` folder and rename it to `imgix.php`.
 
-Then map your Asset Source handle to your Imgix domain, according to the example.
+Then map your Asset Source handle to your imgix domain, according to the example.
 
-This plugin will lookup the Asset image's source handle, and figure out which Imgix domain to use. If a URL string is passed, it will use the first domain in the config file.
+This plugin will lookup the Asset image's source handle, and figure out which imgix domain to use. If a URL string is passed, it will use the first domain in the config file.
 
 ```php
 <?php
    return [
-       // Imgix API key
+       // imgix API key
        'apiKey'         => '',
 
-       // Volume handles mapped to Imgix domains
+       // Volume handles mapped to imgix domains
        'imgixDomains'   => [],
 
-       // Imgix signed URLs token
+       // imgix signed URLs token
        'imgixSignedToken' => '',
 
        // Lazy load attribute prefix
@@ -47,7 +62,7 @@ This plugin will lookup the Asset image's source handle, and figure out which Im
    ];
 ```
 
-## Using Imgix
+## Using imgix
 
 ```twig
 {% set transforms = [
@@ -125,13 +140,14 @@ return [
     ]
 ];
 ```
-## Lazy loading
+
+## Lazy Loading
 
 To replace `src` and `srcset` with `data-src` and `data-srcset` for lazy loading, add the `lazyLoad` attribute to to `transformImage()`.
 
 If you need to prefix with something other than `data-`, you can set the configuration value `lazyLoadPrefix` in `craft/config/imgix.php`.
 
-## Imgix Roadmap
+## Roadmap
 
 * Look into improving srcset/API
 * Look into built-in image editor and focal points 
