@@ -185,6 +185,11 @@ class ImgixModel extends Model
 
             $domains = Imgix::$plugin->getSettings()->imgixDomains;
             $domain  = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
+            $domainParts = [];
+            if ($domain !== null) {
+                $domainParts = explode('/', $domain, 2);
+                $domain = $domainParts[0];
+            }
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
@@ -193,7 +198,13 @@ class ImgixModel extends Model
                 $this->builder->setSignKey($token);
             }
 
-            $this->imagePath  = $image->getPath();
+            $imagePath = '';
+            if (count($domainParts) === 2) {
+                $imagePath = rtrim($domainParts[1], '/') . '/';
+            }
+            $imagePath .= $image->getPath();
+
+            $this->imagePath  = $imagePath;
             $this->transforms = $transforms;
 
             if (!empty($focalPoint)) {
@@ -209,6 +220,11 @@ class ImgixModel extends Model
             $domains     = Imgix::$plugin->getSettings()->imgixDomains;
             $firstHandle = reset($domains);
             $domain      = $domains[ $firstHandle ];
+            $domainParts = [];
+            if ($domain !== null) {
+                $domainParts = explode('/', $domain, 2);
+                $domain = $domainParts[0];
+            }
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
@@ -216,7 +232,13 @@ class ImgixModel extends Model
             if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
                 $this->builder->setSignKey($token);
 
-            $this->imagePath      = $image;
+            $imagePath = '';
+            if (count($domainParts) === 2) {
+                $imagePath = rtrim($domainParts[1], '/') . '/';
+            }
+            $imagePath .= $image;
+
+            $this->imagePath      = $imagePath;
             $this->transforms     = $transforms;
             $this->defaultOptions = $defaultOptions;
             $this->transform($transforms);
