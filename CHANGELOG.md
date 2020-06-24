@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.0.5] - 2020-06-24
+### Fixed
+- Fixed secure URLs if imgix source is setup with path prefix ([#18](https://github.com/sjelfull/craft3-imgix/pull/18))
+
 ## [2.0.4] - 2018-07-21
 ### Fixed
 - Fixed a bug where default options was overriding whatever attributes passed via transforms
