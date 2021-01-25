@@ -33,7 +33,7 @@ class ImgixService extends Component
     // Public Methods
     // =========================================================================
 
-    const IMGIX_PURGE_ENDPOINT = 'https://api.imgix.com/v2/image/purger';
+    const IMGIX_PURGE_ENDPOINT = 'https://api.imgix.com/api/v1/purge';
 
     protected $builder;
 
