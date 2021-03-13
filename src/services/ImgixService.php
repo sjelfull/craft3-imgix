@@ -129,7 +129,7 @@ class ImgixService extends Component
     public function purgeUrl($url = null)
     {
         $apiKey = $this->settings->getApiKey();
-        $isOldKey = strlen($apiKey);
+        $isOldKey = strlen($apiKey) < 50;
 
         Craft::trace(
             Craft::t(
