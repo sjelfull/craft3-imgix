@@ -45,7 +45,7 @@ class ImgixPurgeAction extends ElementAction
 
     public function performAction (ElementQueryInterface $query): bool
     {
-        foreach ($query as $asset) {
+        foreach ($query->all() as $asset) {
             $this->urls[] = Imgix::$plugin->imgixService->getImgixUrl($asset);
         }
 
