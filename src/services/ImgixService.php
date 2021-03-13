@@ -33,7 +33,8 @@ class ImgixService extends Component
     // Public Methods
     // =========================================================================
 
-    const IMGIX_PURGE_ENDPOINT = 'https://api.imgix.com/v2/image/purger';
+    const IMGIX_PURGE_ENDPOINT_OLD = 'https://api.imgix.com/v2/image/purger';
+    const IMGIX_PURGE_ENDPOINT = 'https://api.imgix.com/api/v1/purge';
 
     protected $builder;
 
@@ -42,7 +43,7 @@ class ImgixService extends Component
      */
     private $settings;
 
-    public function init ()
+    public function init()
     {
         parent::init();
 
@@ -56,9 +57,9 @@ class ImgixService extends Component
      *
      * @return null|ImgixModel
      */
-    public function transformImage ($asset = null, $transforms = null, $defaultOptions = [])
+    public function transformImage($asset = null, $transforms = null, $defaultOptions = [])
     {
-        if ( !$asset ) {
+        if (!$asset) {
             return null;
         }
         $pathsModel = new ImgixModel($asset, $transforms, $defaultOptions);
@@ -69,7 +70,7 @@ class ImgixService extends Component
     /**
      * @param Asset $asset
      */
-    public function onSaveAsset (Asset $asset)
+    public function onSaveAsset(Asset $asset)
     {
         $url = $this->getImgixUrl($asset);
 
@@ -78,9 +79,9 @@ class ImgixService extends Component
             __METHOD__
         );
 
-        if ( $url ) {
-            $job       = new PurgeUrlsJob();
-            $job->urls = [ $this->getImgixUrl($asset) ];
+        if ($url) {
+            $job = new PurgeUrlsJob();
+            $job->urls = [$this->getImgixUrl($asset)];
 
             Craft::$app->getQueue()->push($job);
         }
@@ -89,13 +90,13 @@ class ImgixService extends Component
     /**
      * @param Asset $asset
      */
-    public function onDeleteAsset (Asset $asset)
+    public function onDeleteAsset(Asset $asset)
     {
         $url = $this->getImgixUrl($asset);
 
-        if ( $url ) {
-            $job       = new PurgeUrlsJob();
-            $job->urls = [ $this->getImgixUrl($asset) ];
+        if ($url) {
+            $job = new PurgeUrlsJob();
+            $job->urls = [$this->getImgixUrl($asset)];
 
             Craft::$app->getQueue()->push($job);
         }
@@ -106,14 +107,14 @@ class ImgixService extends Component
      *
      * @return bool
      */
-    public function purge (Asset $asset)
+    public function purge(Asset $asset)
     {
         $url = $this->getImgixUrl($asset);
 
         Craft::trace(
             Craft::t(
                 'imgix',
-                'Purging asset #{id}: {url}', [ 'id' => $asset->id, 'url' => $url ]
+                'Purging asset #{id}: {url}', ['id' => $asset->id, 'url' => $url]
             ),
             'imgix');
 
@@ -125,49 +126,63 @@ class ImgixService extends Component
      *
      * @return bool
      */
-    public function purgeUrl ($url = null)
+    public function purgeUrl($url = null)
     {
-        $apiKey = $this->settings->apiKey;
+        $apiKey = $this->settings->getApiKey();
+        $isOldKey = strlen($apiKey);
 
         Craft::trace(
             Craft::t(
                 'imgix',
-                'Purging asset: {url}', [ 'url' => $url ]
+                'Purging asset: {url}', ['url' => $url]
             ),
             'imgix');
 
         try {
-            $client = Craft::createGuzzleClient([ 'timeout' => 30, 'connect_timeout' => 30 ]);
-
-            $response = $client->post(self::IMGIX_PURGE_ENDPOINT, [
-                'auth'        => [
-                    $apiKey, ''
+            $client = Craft::createGuzzleClient(['timeout' => 30, 'connect_timeout' => 30]);
+            $endpoint = $isOldKey ? self::IMGIX_PURGE_ENDPOINT_OLD : self::IMGIX_PURGE_ENDPOINT;
+            $config = $isOldKey ? [
+                'auth' => [
+                    $apiKey, '',
                 ],
                 'form_params' => [
                     'url' => $url,
-                ]
-            ]);
+                ],
+            ] : [
+                'headers' => [
+                    'Authorization' => "Bearer {$apiKey}",
+                ],
+                'json' => [
+                    'data' => [
+                        'attributes' => [
+                            'url' => $url,
+                        ],
+                        'type' => 'purges',
+                    ],
+                ],
+            ];
+            $response = $client->post($endpoint, $config);
 
             Craft::trace(
                 Craft::t(
                     'imgix',
                     'Purged asset: {url} - Status code {statusCode}', [
-                        'url'        => $url,
-                        'statusCode' => $response->getStatusCode()
+                        'url' => $url,
+                        'statusCode' => $response->getStatusCode(),
                     ]
                 ),
                 'imgix');
 
             return $response->getStatusCode() >= 200 && $response->getStatusCode() < 400;
-        }
-        catch (RequestException $e) {
+        } catch (RequestException $e) {
             Craft::error(
                 Craft::t(
                     'imgix',
                     'Failed to purge {url}: {statusCode} {error}', [
-                        'url'        => $url,
-                        'error'      => $e->getMessage(),
-                        'statusCode' => $e->getResponse()->getStatusCode() ]
+                        'url' => $url,
+                        'error' => $e->getMessage(),
+                        'statusCode' => $e->getResponse()->getStatusCode(),
+                    ]
                 ),
                 'imgix'
             );
@@ -181,15 +196,15 @@ class ImgixService extends Component
      *
      * @return null|string
      */
-    public function getImgixUrl (Asset $asset)
+    public function getImgixUrl(Asset $asset)
     {
-        $url      = null;
-        $domains  = $this->settings->imgixDomains;
-        $volume   = $asset->getVolume();
+        $url = null;
+        $domains = $this->settings->imgixDomains;
+        $volume = $asset->getVolume();
         $assetUrl = AssetsHelper::generateUrl($volume, $asset);
         $assetUri = parse_url($assetUrl, PHP_URL_PATH);
 
-        if ( isset($domains[ $volume->handle ]) ) {
+        if (isset($domains[ $volume->handle ])) {
             $builder = new UrlBuilder($domains[ $volume->handle ]);
             $builder->setUseHttps(true);
             if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)

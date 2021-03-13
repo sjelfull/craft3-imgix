@@ -24,8 +24,14 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
-    // Public Properties
-    // =========================================================================
+    public function init()
+    {
+        parent::init();
+
+        if (!empty($this->apiKey) && strlen($this->apiKey) < 50) {
+            \Craft::$app->deprecator->log(__METHOD__, 'You appear to be using an API key for v1 of the Imgix API. v1 has been deprecated. You need to generate a new one from https://dashboard.imgix.com/api-keys/new, with permissions to purge, and replace the old one. See https://blog.imgix.com/2020/10/16/api-deprecation for more information.');
+        }
+    }
 
     /**
      * Imgix API key
@@ -40,7 +46,7 @@ class Settings extends Model
      * @var string
      */
     public $imgixDomains = [];
-    
+
     /**
      * Imgix signed URLs token
      *
@@ -53,21 +59,29 @@ class Settings extends Model
      */
     public $lazyLoadPrefix = '';
 
-    // Public Methods
-    // =========================================================================
+    public function getApiKey()
+    {
+        $apiKey = Craft::parseEnv($this->apiKey);
+
+        if (!empty($apiKey) && strlen($apiKey) < 50) {
+            \Craft::$app->deprecator->log(__METHOD__, 'You appear to be using an deprecated API key for th eImgix API. You need to generate a new one from https://dashboard.imgix.com/api-keys/new, with permissions to purge, and replace the old one. See https://blog.imgix.com/2020/10/16/api-deprecation for more information.');
+        }
+
+        return $apiKey;
+    }
 
     /**
      * @inheritdoc
      */
-    public function rules ()
+    public function rules()
     {
         return [
-            [ 'imgixDomains', 'array' ],
-            [ 'imgixDomains', 'default', 'value' => [] ],
-            [ 'imgixSignedToken', 'string' ],
-            [ 'imgixSignedToken', 'default', 'value' => '' ],
-            [ 'lazyLoadPrefix', 'string' ],
-            [ 'lazyLoadPrefix', 'default', 'value' => '' ],
+            ['imgixDomains', 'array'],
+            ['imgixDomains', 'default', 'value' => []],
+            ['imgixSignedToken', 'string'],
+            ['imgixSignedToken', 'default', 'value' => ''],
+            ['lazyLoadPrefix', 'string'],
+            ['lazyLoadPrefix', 'default', 'value' => ''],
         ];
     }
 }

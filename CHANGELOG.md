@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.1.0] - 2021-03-13
+
+> {warning} [Imgix have deprecated their old API](https://blog.imgix.com/2020/10/16/api-deprecation), and you will have to generate a new API key before March 31st if you are using the purge function. The plugin will continue to spuport both the old and the new version, but you will get a deprecation error if you use an old API key, and they will eventually stop working.
+
+### Added
+- Added support for the new Imgix Purge API.
+
+### Changed
+- Added deprecation warning when using a deprecated API key.
+
 ## [2.0.5] - 2020-06-24
 ### Fixed
 - Fixed secure URLs if imgix source is setup with path prefix ([#18](https://github.com/sjelfull/craft3-imgix/pull/18))
