@@ -189,6 +189,10 @@ class ImgixModel extends Model
             if ($domain !== null) {
                 $domainParts = explode('/', $domain, 2);
                 $domain = $domainParts[0];
+            } else {
+                // Domain isn't in imgixDomains, just passthrough the image
+                $this->transformed = $image;
+                return;
             }
 
             $this->builder = new UrlBuilder($domain);
