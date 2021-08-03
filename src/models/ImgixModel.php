@@ -198,11 +198,9 @@ class ImgixModel extends Model
                 $this->builder->setSignKey($token);
             }
 
-            $imagePath = '';
-            if (count($domainParts) === 2) {
-                $imagePath = rtrim($domainParts[1], '/') . '/';
-            }
-            $imagePath .= $image->getPath();
+            $volume = $image->getVolume();
+            $assetUrl = AssetsHelper::generateUrl($volume, $image);
+            $imagePath = parse_url($assetUrl, PHP_URL_PATH);
 
             $this->imagePath  = $imagePath;
             $this->transforms = $transforms;
@@ -232,11 +230,9 @@ class ImgixModel extends Model
             if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
                 $this->builder->setSignKey($token);
 
-            $imagePath = '';
-            if (count($domainParts) === 2) {
-                $imagePath = rtrim($domainParts[1], '/') . '/';
-            }
-            $imagePath .= $image;
+            $volume = $image->getVolume();
+            $assetUrl = AssetsHelper::generateUrl($volume, $image);
+            $imagePath = parse_url($assetUrl, PHP_URL_PATH);
 
             $this->imagePath      = $imagePath;
             $this->transforms     = $transforms;
