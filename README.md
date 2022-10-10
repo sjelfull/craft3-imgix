@@ -95,7 +95,7 @@ This plugin will lookup the Asset image's source handle, and figure out which im
 {{ firstImage.getUrl() }}
 
 {# Image tag w/ srcset + tag attributes #}
-{{ secondImage.srcset({ width: 700 }) }}
+{{ secondImage.srcset({ width: 700, alt: 'your alt text here' }) }}
 
 {# Image tag w/ srcset + default options for each transform #}
 {{ fourthImage.srcset( {} ) }}
@@ -143,9 +143,11 @@ return [
 
 ## Lazy Loading
 
-To replace `src` and `srcset` with `data-src` and `data-srcset` for lazy loading, add the `lazyLoad` attribute to to `transformImage()`.
+To replace `src` and `srcset` with `data-src` and `data-srcset` for javascript-based lazy loading, add the `lazyLoad` attribute to `transformImage()`.
 
 If you need to prefix with something other than `data-`, you can set the configuration value `lazyLoadPrefix` in `craft/config/imgix.php`.
+
+Alternatively, you may use the native loading attribute `loading="lazy"` on your image tag as in this example: `{{ image.srcset({ loading: 'lazy' }) }}`.
 
 ## Roadmap
 
