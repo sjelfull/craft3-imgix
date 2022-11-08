@@ -10,23 +10,22 @@
 
 namespace superbig\imgix;
 
+use Craft;
 use craft\base\Element;
+use craft\base\Plugin;
 use craft\elements\Asset;
 use craft\events\ElementEvent;
 use craft\events\RegisterElementActionsEvent;
 use craft\events\ReplaceAssetEvent;
+use craft\helpers\ElementHelper;
 use craft\services\Assets;
 use craft\services\Elements;
+use craft\web\twig\variables\CraftVariable;
 use superbig\imgix\actions\ImgixPurgeAction;
+
 use superbig\imgix\models\Settings;
 use superbig\imgix\services\ImgixService as ImgixServiceService;
 use superbig\imgix\variables\ImgixVariable;
-
-use Craft;
-use craft\base\Plugin;
-use craft\services\Plugins;
-use craft\events\PluginEvent;
-use craft\web\twig\variables\CraftVariable;
 
 use yii\base\Event;
 
@@ -42,21 +41,15 @@ use yii\base\Event;
  */
 class Imgix extends Plugin
 {
-    // Static Properties
-    // =========================================================================
-
     /**
      * @var Imgix
      */
     public static $plugin;
 
-    // Public Methods
-    // =========================================================================
-
     /**
      * @inheritdoc
      */
-    public function init ()
+    public function init(): void
     {
         parent::init();
         self::$plugin = $this;
@@ -64,7 +57,7 @@ class Imgix extends Plugin
         Event::on(
             CraftVariable::class,
             CraftVariable::EVENT_INIT,
-            function (Event $event) {
+            static function (Event $event) : void {
                 /** @var CraftVariable $variable */
                 $variable = $event->sender;
                 $variable->set('imgix', ImgixVariable::class);
@@ -74,17 +67,10 @@ class Imgix extends Plugin
         Event::on(
             Elements::class,
             Elements::EVENT_BEFORE_SAVE_ELEMENT,
-            function (ElementEvent $event) {
-                Craft::trace(
-                    'Elements::EVENT_BEFORE_SAVE_ELEMENT',
-                    __METHOD__
-                );
-
-                /** @var Element $element */
-                $element      = $event->element;
+            static function (ElementEvent $event) : void {
+                $element = $event->element;
                 $isNewElement = $event->isNew;
-
-                if ( $element instanceof Asset && !$isNewElement ) {
+                if ($element instanceof Asset && !$isNewElement) {
                     Imgix::$plugin->imgixService->onSaveAsset($element);
                 }
             }
@@ -93,17 +79,9 @@ class Imgix extends Plugin
         Event::on(
             Elements::class,
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
-            function (ElementEvent $event) {
-                Craft::trace(
-                    'Elements::EVENT_BEFORE_DELETE_ELEMENT',
-                    __METHOD__
-                );
-
-                /** @var Element $element */
-                $element      = $event->element;
-                $isNewElement = $event->isNew;
-
-                if ( $element instanceof Asset ) {
+            static function (ElementEvent $event) : void {
+                $element = $event->element;
+                if ($element instanceof Asset) {
                     Imgix::$plugin->imgixService->onDeleteAsset($element);
                 }
             }
@@ -112,14 +90,8 @@ class Imgix extends Plugin
         Event::on(
             Assets::class,
             Assets::EVENT_BEFORE_REPLACE_ASSET,
-            function (ReplaceAssetEvent $event) {
-                Craft::trace(
-                    'Assets::EVENT_BEFORE_REPLACE_ASSET',
-                    __METHOD__
-                );
-                /** @var Asset $element */
+            static function (ReplaceAssetEvent $event) : void {
                 $element = $event->asset;
-
                 Imgix::$plugin->imgixService->onSaveAsset($element);
             }
         );
@@ -127,28 +99,16 @@ class Imgix extends Plugin
         Event::on(
             Asset::class,
             Element::EVENT_REGISTER_ACTIONS,
-            function (RegisterElementActionsEvent $event) {
+            static function (RegisterElementActionsEvent $event) : void {
                 $event->actions[] = new ImgixPurgeAction();
             }
         );
-
-        Craft::info(
-            Craft::t(
-                'imgix',
-                '{name} plugin loaded',
-                [ 'name' => $this->name ]
-            ),
-            __METHOD__
-        );
     }
-
-    // Protected Methods
-    // =========================================================================
 
     /**
      * @inheritdoc
      */
-    protected function createSettingsModel ()
+    protected function createSettingsModel(): \superbig\imgix\models\Settings
     {
         return new Settings();
     }

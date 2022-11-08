@@ -12,8 +12,6 @@ namespace superbig\imgix\variables;
 
 use superbig\imgix\Imgix;
 
-use Craft;
-
 /**
  * @author    Superbig
  * @package   Imgix
@@ -21,18 +19,14 @@ use Craft;
  */
 class ImgixVariable
 {
-    // Public Methods
-    // =========================================================================
-
     /**
      * @param null  $asset
      * @param null  $transforms
-     * @param array $defaultOptions
      *
-     * @return string
      *
+     * @param mixed[] $defaultOptions
      */
-    public function transformImage ($asset = null, $transforms = null, $defaultOptions = [])
+    public function transformImage($asset = null, $transforms = null, array $defaultOptions = []): ?\superbig\imgix\models\ImgixModel
     {
         return Imgix::$plugin->imgixService->transformImage($asset, $transforms, $defaultOptions);
     }

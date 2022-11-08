@@ -10,13 +10,8 @@
 
 namespace superbig\imgix\jobs;
 
-use craft\elements\Asset;
 use craft\queue\BaseJob;
-use Imgix\UrlBuilder;
 use superbig\imgix\Imgix;
-
-use Craft;
-use craft\base\Model;
 
 /**
  * @author    Superbig
@@ -35,11 +30,11 @@ class PurgeUrlsJob extends BaseJob
      */
     public $urls = [];
 
-    public function execute ($queue)
+    public function execute($queue): void
     {
         $totalSteps = count($this->urls);
 
-        for ($step = 0; $step < $totalSteps; $step++) {
+        for ($step = 0; $step < $totalSteps; ++$step) {
             $this->setProgress($queue, $step / $totalSteps);
             $url = $this->urls[ $step ];
 
@@ -47,7 +42,7 @@ class PurgeUrlsJob extends BaseJob
         }
     }
 
-    protected function defaultDescription ()
+    protected function defaultDescription(): string
     {
         return count($this->urls) > 1 ? 'Purging images' : 'Purging image';
     }

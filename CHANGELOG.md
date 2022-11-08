@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - 2022-11-09
+
+### Added
+- Craft 4 support
+
+### Fixed
+- Fixed purging logic in cases where subfolders were used
+
 ## [2.1.0] - 2021-03-13
 
 > {warning} [Imgix have deprecated their old API](https://blog.imgix.com/2020/10/16/api-deprecation), and you will have to generate a new API key before March 31st if you are using the purge function. The plugin will continue to spuport both the old and the new version, but you will get a deprecation error if you use an old API key, and they will eventually stop working.

@@ -10,13 +10,14 @@
 
 namespace superbig\imgix\models;
 
+use Craft;
+use craft\base\Model;
 use craft\elements\Asset;
+use craft\helpers\Html;
 use craft\helpers\Template;
 use Imgix\UrlBuilder;
 use superbig\imgix\Imgix;
-
-use Craft;
-use craft\base\Model;
+use Twig\Markup;
 use yii\base\Exception;
 
 /**
@@ -26,17 +27,7 @@ use yii\base\Exception;
  */
 class ImgixModel extends Model
 {
-    // Public Properties
-    // =========================================================================
-
-    /**
-     * @var array
-     */
     public $transformed = [];
-
-    // Protected Properties
-    // =========================================================================
-
     protected $supportedAttributes = [
         'bri',
         'con',
@@ -146,14 +137,14 @@ class ImgixModel extends Model
         'marky',
     ];
     protected $attributesTranslate = [
-        'width'      => 'w',
-        'height'     => 'h',
-        'min-width'  => 'min-w',
-        'max-width'  => 'max-w',
+        'width' => 'w',
+        'height' => 'h',
+        'min-width' => 'min-w',
+        'max-width' => 'max-w',
         'min-height' => 'min-h',
         'max-height' => 'max-h',
-        'x'          => 'fp-x',
-        'y'          => 'fp-y',
+        'x' => 'fp-x',
+        'y' => 'fp-y',
     ];
     protected $transforms;
     protected $imagePath;
@@ -161,17 +152,6 @@ class ImgixModel extends Model
     protected $defaultOptions;
     protected $lazyLoadPrefix;
 
-    // Public Methods
-    // =========================================================================
-
-
-    /**
-     * Constructor
-     *
-     * @param $image
-     *
-     * @throws Exception
-     */
     public function __construct($image, $transforms = null, $defaultOptions = [])
     {
         parent::__construct();
@@ -179,21 +159,22 @@ class ImgixModel extends Model
 
         /** @var null|Asset $image */
         if ($image instanceof Asset) {
-            $source       = $image->getVolume();
+            $source = $image->getVolume();
             $sourceHandle = $source->handle;
-            $focalPoint   = $image->getFocalPoint();
-
+            $focalPoint = $image->getFocalPoint();
             $domains = Imgix::$plugin->getSettings()->imgixDomains;
-            $domain  = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
+            $domain = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
             $domainParts = [];
-            if ($domain !== null) {
-                $domainParts = explode('/', $domain, 2);
-                $domain = $domainParts[0];
-            } else {
+
+            if ($domain === null) {
                 // Domain isn't in imgixDomains, just passthrough the image
                 $this->transformed = $image;
+
                 return;
             }
+
+            $domainParts = explode('/', $domain, 2);
+            $domain = $domainParts[0];
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
@@ -208,7 +189,7 @@ class ImgixModel extends Model
             }
             $imagePath .= $image->getPath();
 
-            $this->imagePath  = $imagePath;
+            $this->imagePath = $imagePath;
             $this->transforms = $transforms;
 
             if (!empty($focalPoint)) {
@@ -219,11 +200,14 @@ class ImgixModel extends Model
             $this->defaultOptions = $defaultOptions;
 
             $this->transform($transforms);
+
+            return;
         }
-        elseif (gettype($image) === 'string') {
-            $domains     = Imgix::$plugin->getSettings()->imgixDomains;
+
+        if (gettype($image) === 'string') {
+            $domains = Imgix::$plugin->getSettings()->imgixDomains;
             $firstHandle = reset($domains);
-            $domain      = $domains[ $firstHandle ];
+            $domain = $domains[ $firstHandle ];
             $domainParts = [];
             if ($domain !== null) {
                 $domainParts = explode('/', $domain, 2);
@@ -233,8 +217,9 @@ class ImgixModel extends Model
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
+            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
                 $this->builder->setSignKey($token);
+            }
 
             $imagePath = '';
             if (count($domainParts) === 2) {
@@ -242,37 +227,39 @@ class ImgixModel extends Model
             }
             $imagePath .= $image;
 
-            $this->imagePath      = $imagePath;
-            $this->transforms     = $transforms;
+            $this->imagePath = $imagePath;
+            $this->transforms = $transforms;
             $this->defaultOptions = $defaultOptions;
             $this->transform($transforms);
+
+            return;
         }
-        else {
-            throw new Exception(Craft::t('An unknown image object was used.'));
-        }
+
+        throw new Exception(Craft::t('An unknown image object was used.'));
     }
 
-    /**
-     * @param null $attributes
-     *
-     * @return null|\Twig_Markup
-     */
-    public function img($attributes = null)
+    public function img($attributes = null): ?Markup
     {
-        if ($image = $this->transformed) {
-            if ($image && isset($image['url'])) {
-                $lazyLoad = false;
-                if (isset($attributes['lazyLoad'])) {
-                    $lazyLoad = $attributes['lazyLoad'];
-                    unset($attributes['lazyLoad']); // unset to remove it from the html output
-                }
-                $tagAttributes = $this->getTagAttributes($attributes);
+        $image = $this->transformed;
 
-                return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $image['url'] . '" ' . $tagAttributes . ' />');
-            }
+        if (!$image || !isset($image['url'])) {
+            return null;
         }
 
-        return null;
+        $lazyLoad = false;
+        if (isset($attributes['lazyLoad'])) {
+            $lazyLoad = $attributes['lazyLoad'];
+            unset($attributes['lazyLoad']); // unset to remove it from the html output
+        }
+        $lazyLoadPrefix = $lazyLoad ? $this->lazyLoadPrefix : '';
+        $srcKey = $lazyLoadPrefix . 'src';
+
+        return Template::raw(
+            Html::tag('img', '', array_merge(
+                [$srcKey => $image['url']],
+                ($attributes ?? []),
+            ))
+        );
     }
 
     /**
@@ -289,40 +276,51 @@ class ImgixModel extends Model
         return null;
     }
 
-    /**
-     * @param $attributes
-     *
-     * @return null|\Twig_Markup
-     */
-    public function srcset($attributes = [])
+    public function srcset($attributes = []): ?Markup
     {
-        if ($images = $this->transformed) {
-            $widths = [];
-            $result = '';
+        if (empty($this->transformed)) {
+            return null;
+        }
 
+        $images = $this->transformed;
+        $widths = [];
+        $srcsetParts = [];
+        $firstSrc = '';
+
+        if ($images instanceof Asset) {
+            $width = $images->getWidth();
+            $firstSrc = $images->getUrl();
+            $srcsetParts[] = $images->getUrl() . ' ' . $width . 'w';
+        }
+        else {
+            $firstSrc = $images[0]['url'];
             foreach ($images as $image) {
-                $keys  = array_keys($image);
                 $width = $image['width'] ?? $image['w'] ?? null;
                 if ($width && !isset($widths[ $width ])) {
                     $withs[ $width ] = true;
-                    $result          .= $image['url'] . ' ' . $width . 'w, ';
+                    $srcsetParts[] = $image['url'] . ' ' . $width . 'w';
                 }
             }
-
-            $srcset   = substr($result, 0, strlen($result) - 2);
-            $lazyLoad = false;
-
-            if (isset($attributes['lazyLoad'])) {
-                $lazyLoad = $attributes['lazyLoad'];
-                unset($attributes['lazyLoad']); // unset to remove it from the html output
-            }
-
-            $tagAttributes = $this->getTagAttributes($attributes);
-
-            return Template::raw('<img ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'src="' . $images[0]['url'] . '" ' . ($lazyLoad ? $this->lazyLoadPrefix : '') . 'srcset="' . $srcset . '" ' . $tagAttributes . ' />');
         }
 
-        return null;
+        $srcset = implode(', ', $srcsetParts);
+        $lazyLoad = false;
+
+        if (isset($attributes['lazyLoad'])) {
+            $lazyLoad = $attributes['lazyLoad'];
+            unset($attributes['lazyLoad']); // unset to remove it from the html output
+        }
+
+        $lazyLoadPrefix = $lazyLoad ? $this->lazyLoadPrefix : '';
+        $srcKey = $lazyLoadPrefix . 'src';
+        $srcsetKey = $lazyLoadPrefix . 'srcset';
+
+        return Template::raw(
+            Html::tag('img', '', array_merge([
+                $srcKey => $firstSrc,
+                $srcsetKey => $srcset,
+            ], $attributes ?? []))
+        );
     }
 
     /**
@@ -341,17 +339,17 @@ class ImgixModel extends Model
             foreach ($transforms as $transform) {
                 $transform = array_merge($this->defaultOptions, $transform);
                 $transform = $this->calculateTargetSizeFromRatio($transform);
-                $url       = $this->buildTransform($this->imagePath, $transform);
-                $images[]  = array_merge($transform, ['url' => $url]);
+                $url = $this->buildTransform($this->imagePath, $transform);
+                $images[] = array_merge($transform, ['url' => $url]);
             }
 
             $this->transformed = $images;
         }
         else {
-            $transforms        = array_merge($this->defaultOptions, $transforms);
-            $transforms        = $this->calculateTargetSizeFromRatio($transforms);
-            $url               = $this->buildTransform($this->imagePath, $transforms);
-            $image             = array_merge($transforms, ['url' => $url]);
+            $transforms = array_merge($this->defaultOptions, $transforms);
+            $transforms = $this->calculateTargetSizeFromRatio($transforms);
+            $url = $this->buildTransform($this->imagePath, $transforms);
+            $image = array_merge($transforms, ['url' => $url]);
             $this->transformed = $image;
         }
     }
@@ -390,26 +388,6 @@ class ImgixModel extends Model
     }
 
     /**
-     * @param $attributes
-     *
-     * @return string
-     */
-    private function getTagAttributes($attributes)
-    {
-        if (!$attributes) {
-            return '';
-        }
-
-        $tagAttributes = '';
-
-        foreach ($attributes as $key => $attribute) {
-            $tagAttributes .= ' ' . $key . '="' . $attribute . '"';
-        }
-
-        return $tagAttributes;
-    }
-
-    /**
      * @param $transform
      *
      * @return mixed
@@ -421,8 +399,8 @@ class ImgixModel extends Model
         }
 
         $ratio = (float)$transform['ratio'];
-        $w     = isset($transform['w']) ? $transform['w'] : null;
-        $h     = isset($transform['h']) ? $transform['h'] : null;
+        $w = isset($transform['w']) ? $transform['w'] : null;
+        $h = isset($transform['h']) ? $transform['h'] : null;
 
         // If both sizes and ratio is specified, let ratio take control based on width
         if ($w and $h) {
@@ -450,7 +428,7 @@ class ImgixModel extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             ['transformed', 'array'],

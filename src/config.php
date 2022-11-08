@@ -30,10 +30,10 @@
 
 return [
     // Imgix API key
-    'apiKey'         => '',
+    'apiKey' => '',
 
     // Volume handles mapped to Imgix domains
-    'imgixDomains'   => [],
+    'imgixDomains' => [],
 
     // Imgix signed URLs token
     'imgixSignedToken' => '',

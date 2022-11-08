@@ -2,7 +2,7 @@
     "name": "superbig/craft3-imgix",
     "description": "Use Imgix with Craft",
     "type": "craft-plugin",
-    "version": "2.1.0",
+    "version": "3.0.0",
     "keywords": [
         "craft",
         "cms",
@@ -22,8 +22,8 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^3.0.0",
-        "imgix/imgix-php": "~2.1.0"
+        "craftcms/cms": "^4.0.0",
+        "imgix/imgix-php": "~3.3.0"
     },
     "repositories": [
         {

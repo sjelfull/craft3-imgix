@@ -10,15 +10,14 @@
 
 namespace superbig\imgix\services;
 
-use craft\elements\Asset;
-use craft\helpers\UrlHelper;
-use craft\helpers\Assets as AssetsHelper;
-use GuzzleHttp\Exception\RequestException;
-use Imgix\UrlBuilder;
-use superbig\imgix\Imgix;
-
 use Craft;
 use craft\base\Component;
+use craft\elements\Asset;
+use craft\helpers\UrlHelper;
+use GuzzleHttp\Exception\RequestException;
+
+use Imgix\UrlBuilder;
+use superbig\imgix\Imgix;
 use superbig\imgix\jobs\PurgeUrlsJob;
 use superbig\imgix\models\ImgixModel;
 use superbig\imgix\models\Settings;
@@ -43,7 +42,7 @@ class ImgixService extends Component
      */
     private $settings;
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -57,14 +56,13 @@ class ImgixService extends Component
      *
      * @return null|ImgixModel
      */
-    public function transformImage($asset = null, $transforms = null, $defaultOptions = [])
+    public function transformImage($asset = null, $transforms = null, $defaultOptions = []): ?ImgixModel
     {
         if (!$asset) {
             return null;
         }
-        $pathsModel = new ImgixModel($asset, $transforms, $defaultOptions);
-
-        return $pathsModel;
+        
+        return new ImgixModel($asset, $transforms, $defaultOptions);
     }
 
     /**
@@ -191,18 +189,13 @@ class ImgixService extends Component
         }
     }
 
-    /**
-     * @param Asset $asset
-     *
-     * @return null|string
-     */
     public function getImgixUrl(Asset $asset)
     {
-        $source       = $asset->getVolume();
+        $source = $asset->getVolume();
         $sourceHandle = $source->handle;
 
         $domains = $this->settings->imgixDomains;
-        $domain  = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
+        $domain = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
         $domainParts = [];
         if ($domain !== null) {
             $domainParts = explode('/', $domain, 2);
@@ -215,16 +208,17 @@ class ImgixService extends Component
         }
         $assetPath .= $asset->getPath();
 
-        if (isset($domains[ $source->handle ])) {
-            $builder = new UrlBuilder($domain);
-            $builder->setUseHttps(true);
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken)
-                $builder->setSignKey($token);
-            $url = UrlHelper::stripQueryString($builder->createURL($assetPath));
+        if (!isset($domains[ $source->handle ])) {
+            return null;
         }
 
+        $builder = new UrlBuilder($domain);
+        $builder->setUseHttps(true);
+        if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
+            $builder->setSignKey($token);
+        }
+        $url = UrlHelper::stripQueryString($builder->createURL($assetPath));
 
         return $url;
     }
-
 }

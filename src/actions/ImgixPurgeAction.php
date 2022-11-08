@@ -10,15 +10,11 @@
 
 namespace superbig\imgix\actions;
 
-use craft\base\ElementAction;
-use craft\elements\Asset;
-use craft\elements\db\ElementQueryInterface;
-use craft\queue\BaseJob;
-use Imgix\UrlBuilder;
-use superbig\imgix\Imgix;
-
 use Craft;
-use craft\base\Model;
+use craft\base\ElementAction;
+use craft\elements\db\ElementQueryInterface;
+
+use superbig\imgix\Imgix;
 use superbig\imgix\jobs\PurgeUrlsJob;
 
 /**
@@ -38,12 +34,12 @@ class ImgixPurgeAction extends ElementAction
      */
     public $urls = [];
 
-    public function getTriggerLabel (): string
+    public function getTriggerLabel(): string
     {
         return Craft::t('imgix', 'Imgix Purge');
     }
 
-    public function performAction (ElementQueryInterface $query): bool
+    public function performAction(ElementQueryInterface $query): bool
     {
         foreach ($query->all() as $asset) {
             $this->urls[] = Imgix::$plugin->imgixService->getImgixUrl($asset);
@@ -56,7 +52,7 @@ class ImgixPurgeAction extends ElementAction
             )
         );
 
-        $job       = new PurgeUrlsJob();
+        $job = new PurgeUrlsJob();
         $job->urls = $this->urls;
 
         Craft::$app->getQueue()->push($job);

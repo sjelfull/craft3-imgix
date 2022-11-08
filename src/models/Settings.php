@@ -10,12 +10,10 @@
 
 namespace superbig\imgix\models;
 
-use craft\elements\Asset;
-use Imgix\UrlBuilder;
-use superbig\imgix\Imgix;
-
 use Craft;
+
 use craft\base\Model;
+use superbig\imgix\Imgix;
 
 /**
  * @author    Superbig
@@ -24,7 +22,7 @@ use craft\base\Model;
  */
 class Settings extends Model
 {
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -73,7 +71,7 @@ class Settings extends Model
     /**
      * @inheritdoc
      */
-    public function rules()
+    public function rules(): array
     {
         return [
             ['imgixDomains', 'array'],
