@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49fd90416cf30b46e1057ec6578e3f98",
+    "content-hash": "1c3e5b5a5c13444cad1447a7870e78cc",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -7507,6 +7507,45 @@
             "time": "2022-04-12T20:50:18+00:00"
         },
         {
+            "name": "craftcms/rector",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/craftcms/rector.git",
+                "reference": "fab0a0ed308aa6cf59968a526f5db635103e5de1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/craftcms/rector/zipball/fab0a0ed308aa6cf59968a526f5db635103e5de1",
+                "reference": "fab0a0ed308aa6cf59968a526f5db635103e5de1",
+                "shasum": ""
+            },
+            "require": {
+                "rector/rector": "^1.0.0"
+            },
+            "require-dev": {
+                "craftcms/cms": "^4.0.0|^5.0.0",
+                "craftcms/ecs": "dev-main",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9.0",
+                "symfony/var-exporter": "^6.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "craft\\rector\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "Rector sets to automate Craft CMS upgrades",
+            "support": {
+                "issues": "https://github.com/craftcms/rector/issues",
+                "source": "https://github.com/craftcms/rector/tree/main"
+            },
+            "time": "2024-05-17T09:09:56+00:00"
+        },
+        {
             "name": "phpstan/phpstan",
             "version": "1.12.24",
             "source": {
@@ -7563,12 +7602,72 @@
                 }
             ],
             "time": "2025-04-16T13:01:53+00:00"
+        },
+        {
+            "name": "rector/rector",
+            "version": "1.2.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rectorphp/rector.git",
+                "reference": "40f9cf38c05296bd32f444121336a521a293fa61"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/40f9cf38c05296bd32f444121336a521a293fa61",
+                "reference": "40f9cf38c05296bd32f444121336a521a293fa61",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2|^8.0",
+                "phpstan/phpstan": "^1.12.5"
+            },
+            "conflict": {
+                "rector/rector-doctrine": "*",
+                "rector/rector-downgrade-php": "*",
+                "rector/rector-phpunit": "*",
+                "rector/rector-symfony": "*"
+            },
+            "suggest": {
+                "ext-dom": "To manipulate phpunit.xml via the custom-rule command"
+            },
+            "bin": [
+                "bin/rector"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Instant Upgrade and Automated Refactoring of any PHP code",
+            "keywords": [
+                "automation",
+                "dev",
+                "migration",
+                "refactoring"
+            ],
+            "support": {
+                "issues": "https://github.com/rectorphp/rector/issues",
+                "source": "https://github.com/rectorphp/rector/tree/1.2.10"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/tomasvotruba",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-11-08T13:59:10+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "craftcms/phpstan": 20,
+        "craftcms/rector": 20,
         "imgix/imgix-php": 20
     },
     "prefer-stable": true,

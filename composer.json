@@ -51,7 +51,8 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require-dev": {
-        "craftcms/phpstan": "dev-main"
+        "craftcms/phpstan": "dev-main",
+        "craftcms/rector": "dev-main"
     },
     "config": {
         "allow-plugins": {
