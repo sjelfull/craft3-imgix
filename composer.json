@@ -22,7 +22,7 @@
         }
     ],
     "require": {
-        "craftcms/cms": "^4.0.0",
+        "craftcms/cms": "^5.0.0",
         "imgix/imgix-php": "~3.3.0"
     },
     "repositories": [

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1c3e5b5a5c13444cad1447a7870e78cc",
+    "content-hash": "6354147e09314def1710874d20f936a1",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1661,20 +1661,20 @@
         },
         {
             "name": "imgix/imgix-php",
-            "version": "dev-master",
+            "version": "3.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/imgix/imgix-php.git",
-                "reference": "024a9379310e6ef848bc4fe78fcfefddfc49a306"
+                "reference": "ddb7e427b601bc3534f108180c81292d5b29bc39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imgix/imgix-php/zipball/024a9379310e6ef848bc4fe78fcfefddfc49a306",
-                "reference": "024a9379310e6ef848bc4fe78fcfefddfc49a306",
+                "url": "https://api.github.com/repos/imgix/imgix-php/zipball/ddb7e427b601bc3534f108180c81292d5b29bc39",
+                "reference": "ddb7e427b601bc3534f108180c81292d5b29bc39",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3"
+                "php": ">=7.3"
             },
             "require-dev": {
                 "phpunit/phpunit": "*"
@@ -1686,11 +1686,18 @@
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
             "description": "A PHP client library for generating URLs with imgix.",
             "keywords": [
                 "imgix"
             ],
-            "time": "2016-10-20T23:10:53+00:00"
+            "support": {
+                "issues": "https://github.com/imgix/imgix-php/issues",
+                "source": "https://github.com/imgix/imgix-php/tree/3.3.1"
+            },
+            "time": "2021-03-25T15:10:34+00:00"
         },
         {
             "name": "lcobucci/clock",
@@ -7667,8 +7674,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "craftcms/phpstan": 20,
-        "craftcms/rector": 20,
-        "imgix/imgix-php": 20
+        "craftcms/rector": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
