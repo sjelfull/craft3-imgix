@@ -235,7 +235,7 @@ class ImgixModel extends Model
             return;
         }
 
-        throw new Exception(Craft::t('An unknown image object was used.'));
+        throw new Exception(Craft::t('imgix', 'An unknown image object was used.'));
     }
 
     public function img($attributes = null): ?Markup
@@ -352,6 +352,8 @@ class ImgixModel extends Model
             $image = array_merge($transforms, ['url' => $url]);
             $this->transformed = $image;
         }
+
+        return null;
     }
 
     /**

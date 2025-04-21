@@ -41,7 +41,7 @@ class Settings extends Model
     /**
      * Volume handles mapped to Imgix domains
      *
-     * @var string
+     * @var array
      */
     public $imgixDomains = [];
 

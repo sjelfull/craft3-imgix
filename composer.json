@@ -47,5 +47,16 @@
             "imgixService": "superbig\\imgix\\services\\ImgixService"
         },
         "class": "superbig\\imgix\\Imgix"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "craftcms/phpstan": "dev-main"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
     }
 }
