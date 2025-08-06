@@ -1,6 +1,6 @@
 <?php
 /**
- * Imgix plugin for Craft CMS 3.x
+ * Imgix plugin for Craft CMS 5.x
  *
  * Use Imgix with Craft
  *
