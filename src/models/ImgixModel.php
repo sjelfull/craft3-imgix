@@ -297,7 +297,7 @@ class ImgixModel extends Model
             foreach ($images as $image) {
                 $width = $image['width'] ?? $image['w'] ?? null;
                 if ($width && !isset($widths[ $width ])) {
-                    $withs[ $width ] = true;
+                    $widths[ $width ] = true;
                     $srcsetParts[] = $image['url'] . ' ' . $width . 'w';
                 }
             }
