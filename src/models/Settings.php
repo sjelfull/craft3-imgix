@@ -1,6 +1,6 @@
 <?php
 /**
- * Imgix plugin for Craft CMS 3.x
+ * Imgix plugin for Craft CMS 5.x
  *
  * Use Imgix with Craft
  *
@@ -41,7 +41,7 @@ class Settings extends Model
     /**
      * Volume handles mapped to Imgix domains
      *
-     * @var string
+     * @var array
      */
     public $imgixDomains = [];
 
@@ -62,7 +62,7 @@ class Settings extends Model
         $apiKey = Craft::parseEnv($this->apiKey);
 
         if (!empty($apiKey) && strlen($apiKey) < 50) {
-            \Craft::$app->deprecator->log(__METHOD__, 'You appear to be using an deprecated API key for th eImgix API. You need to generate a new one from https://dashboard.imgix.com/api-keys/new, with permissions to purge, and replace the old one. See https://blog.imgix.com/2020/10/16/api-deprecation for more information.');
+            \Craft::$app->deprecator->log(__METHOD__, 'You appear to be using an deprecated API key for the Imgix API. You need to generate a new one from https://dashboard.imgix.com/api-keys/new, with permissions to purge, and replace the old one. See https://blog.imgix.com/2020/10/16/api-deprecation for more information.');
         }
 
         return $apiKey;

@@ -1,6 +1,6 @@
 <?php
 /**
- * Imgix plugin for Craft CMS 3.x
+ * Imgix plugin for Craft CMS 5.x
  *
  * Use Imgix with Craft
  *
@@ -235,7 +235,7 @@ class ImgixModel extends Model
             return;
         }
 
-        throw new Exception(Craft::t('An unknown image object was used.'));
+        throw new Exception(Craft::t('imgix', 'An unknown image object was used.'));
     }
 
     public function img($attributes = null): ?Markup
@@ -297,7 +297,7 @@ class ImgixModel extends Model
             foreach ($images as $image) {
                 $width = $image['width'] ?? $image['w'] ?? null;
                 if ($width && !isset($widths[ $width ])) {
-                    $withs[ $width ] = true;
+                    $widths[ $width ] = true;
                     $srcsetParts[] = $image['url'] . ' ' . $width . 'w';
                 }
             }
@@ -352,6 +352,8 @@ class ImgixModel extends Model
             $image = array_merge($transforms, ['url' => $url]);
             $this->transformed = $image;
         }
+
+        return null;
     }
 
     /**

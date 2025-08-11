@@ -1,5 +1,5 @@
 <!-- ix-docs-ignore -->
-# imgix plugin for Craft CMS 3.x
+# imgix plugin for Craft CMS 5.x
 
 Use imgix with Craft
 
@@ -17,7 +17,7 @@ Use imgix with Craft
 
 ## Requirements
 
-This plugin requires Craft CMS 3.0.0-beta.23 or later.
+This plugin requires Craft CMS 5.0.0 or later.
 
 ## Installation
 
@@ -39,7 +39,7 @@ To install the plugin, follow these instructions.
 
 ## Configuring imgix
 
-Copy `config.php` into Crafts `config` folder and rename it to `imgix.php`.
+Copy `config.php` into Craft's `config` folder and rename it to `imgix.php`.
 
 Then map your Asset Source handle to your imgix domain, according to the example.
 
@@ -145,7 +145,7 @@ return [
 
 To replace `src` and `srcset` with `data-src` and `data-srcset` for javascript-based lazy loading, add the `lazyLoad` attribute to `transformImage()`.
 
-If you need to prefix with something other than `data-`, you can set the configuration value `lazyLoadPrefix` in `craft/config/imgix.php`.
+If you need to prefix with something other than `data-`, you can set the configuration value `lazyLoadPrefix` in `config/imgix.php`.
 
 Alternatively, you may use the native loading attribute `loading="lazy"` on your image tag as in this example: `{{ image.srcset({ loading: 'lazy' }) }}`.
 
