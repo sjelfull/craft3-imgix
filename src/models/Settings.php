@@ -75,6 +75,7 @@ class Settings extends Model
      * 
      * @param string $volumeHandle Volume handle to lookup
      * @return array|null Array with 'domain', 'signingToken', and 'path' keys, or null if not found
+     *                    Note: 'path' is returned without leading/trailing slashes
      */
     public function getDomainConfig(string $volumeHandle): ?array
     {
@@ -94,10 +95,8 @@ class Settings extends Model
                 return null;
             }
 
-            // Normalize path - trim and ensure no leading/trailing slashes
-            if (!empty($path)) {
-                $path = trim($path, '/');
-            }
+            // Normalize path - trim leading/trailing slashes
+            $path = trim($path, '/');
 
             return [
                 'domain' => $domain,
@@ -109,7 +108,7 @@ class Settings extends Model
         // Handle legacy string format (domain or domain/path)
         $domainParts = explode('/', $config, 2);
         $domain = $domainParts[0];
-        $path = count($domainParts) === 2 ? $domainParts[1] : '';
+        $path = count($domainParts) === 2 ? trim($domainParts[1], '/') : '';
 
         // Use deprecated imgixSignedToken as fallback for legacy format
         $signingToken = null;
