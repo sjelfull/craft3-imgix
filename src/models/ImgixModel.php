@@ -162,31 +162,30 @@ class ImgixModel extends Model
             $source = $image->getVolume();
             $sourceHandle = $source->handle;
             $focalPoint = $image->getFocalPoint();
-            $domains = Imgix::$plugin->getSettings()->imgixDomains;
-            $domain = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
-            $domainParts = [];
+            
+            $domainConfig = Imgix::$plugin->getSettings()->getDomainConfig($sourceHandle);
 
-            if ($domain === null) {
+            if ($domainConfig === null) {
                 // Domain isn't in imgixDomains, just passthrough the image
                 $this->transformed = $image;
 
                 return;
             }
 
-            $domainParts = explode('/', $domain, 2);
-            $domain = $domainParts[0];
+            $domain = $domainConfig['domain'];
+            $signingToken = $domainConfig['signingToken'];
+            $pathPrefix = $domainConfig['path'];
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            // Use the new method that supports per-domain tokens
-            if ($token = Imgix::$plugin->getSettings()->getSigningToken($sourceHandle)) {
-                $this->builder->setSignKey($token);
+            if ($signingToken) {
+                $this->builder->setSignKey($signingToken);
             }
 
             $imagePath = '';
-            if (count($domainParts) === 2) {
-                $imagePath = rtrim($domainParts[1], '/') . '/';
+            if (!empty($pathPrefix)) {
+                $imagePath = $pathPrefix . '/';
             }
             $imagePath .= $image->getPath();
 
@@ -208,25 +207,31 @@ class ImgixModel extends Model
         if (gettype($image) === 'string') {
             $domains = Imgix::$plugin->getSettings()->imgixDomains;
             $firstHandle = array_key_first($domains);
-            $domain = $firstHandle !== null ? $domains[$firstHandle] : null;
-            $domainParts = [];
-            if ($domain !== null) {
-                $domainParts = explode('/', $domain, 2);
-                $domain = $domainParts[0];
+            
+            if ($firstHandle === null) {
+                throw new Exception(Craft::t('imgix', 'No imgix domains configured.'));
             }
+
+            $domainConfig = Imgix::$plugin->getSettings()->getDomainConfig($firstHandle);
+            
+            if ($domainConfig === null) {
+                throw new Exception(Craft::t('imgix', 'Unable to get domain configuration.'));
+            }
+
+            $domain = $domainConfig['domain'];
+            $signingToken = $domainConfig['signingToken'];
+            $pathPrefix = $domainConfig['path'];
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            // Use the new method that supports per-domain tokens
-            // For string paths, use the first volume handle as lookup key
-            if ($token = Imgix::$plugin->getSettings()->getSigningToken($firstHandle)) {
-                $this->builder->setSignKey($token);
+            if ($signingToken) {
+                $this->builder->setSignKey($signingToken);
             }
 
             $imagePath = '';
-            if (count($domainParts) === 2) {
-                $imagePath = rtrim($domainParts[1], '/') . '/';
+            if (!empty($pathPrefix)) {
+                $imagePath = $pathPrefix . '/';
             }
             $imagePath .= $image;
 

@@ -45,6 +45,8 @@ Then map your Asset Source handle to your imgix domain, according to the example
 
 This plugin will lookup the Asset image's source handle, and figure out which imgix domain to use. If a URL string is passed, it will use the first domain in the config file.
 
+### Basic Configuration (String Format)
+
 ```php
 <?php
    return [
@@ -57,39 +59,56 @@ This plugin will lookup the Asset image's source handle, and figure out which im
            'volumeHandle2' => 'domain2.imgix.net/subfolder',
        ],
 
-       // imgix signed URLs token (legacy - for single domain)
-       'imgixSignedToken' => '',
-
-       // Volume handles mapped to imgix signed tokens (for multiple domains)
-       // Each imgix source has its own secure token
-       'imgixSignedTokens' => [
-           'volumeHandle1' => 'token_for_domain1',
-           'volumeHandle2' => 'token_for_domain2',
-       ],
-
        // Lazy load attribute prefix
        'lazyLoadPrefix' => '',
    ];
 ```
 
-### Secure URLs with Multiple Domains
+### Advanced Configuration (Array Format)
 
-If you have multiple imgix sources with different secure tokens, use the `imgixSignedTokens` configuration option. This allows you to map each volume handle to its corresponding secure token:
+For more control, you can use the array format to specify domain, signing token, and path prefix per volume:
 
 ```php
-return [
-    'imgixDomains' => [
-        'uploads' => 'my-uploads.imgix.net',
-        'products' => 'my-products.imgix.net',
-    ],
-    'imgixSignedTokens' => [
-        'uploads' => 'secure_token_for_uploads_source',
-        'products' => 'secure_token_for_products_source',
-    ],
-];
+<?php
+   return [
+       'apiKey' => '',
+       
+       'imgixDomains' => [
+           'uploads' => [
+               'domain' => 'uploads.imgix.net',
+               'signingToken' => '$IMGIX_UPLOADS_TOKEN',  // Optional
+               'path' => 'subfolder/path',                 // Optional
+           ],
+           'products' => [
+               'domain' => 'products.imgix.net',
+               'signingToken' => '$IMGIX_PRODUCTS_TOKEN',
+           ],
+           // You can mix string and array formats
+           'publicImages' => 'public.imgix.net',
+       ],
+       
+       'lazyLoadPrefix' => '',
+   ];
 ```
 
-For backward compatibility, if you only have one imgix source, you can still use the `imgixSignedToken` configuration option (string) instead of `imgixSignedTokens` (array).
+### Secure URLs
+
+Each imgix source can have its own secure token for signed URLs. Use the `signingToken` key in the array format:
+
+```php
+'imgixDomains' => [
+    'uploads' => [
+        'domain' => 'my-uploads.imgix.net',
+        'signingToken' => 'secure_token_for_uploads_source',
+    ],
+    'products' => [
+        'domain' => 'my-products.imgix.net',
+        'signingToken' => 'secure_token_for_products_source',
+    ],
+],
+```
+
+**Note:** The `imgixSignedToken` configuration option is deprecated. Use `signingToken` in the `imgixDomains` array instead.
 
 ## Using imgix
 

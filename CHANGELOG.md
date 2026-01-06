@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Added
+- Added support for per-domain configuration including signing tokens and path prefixes via array format in `imgixDomains`
+
+### Deprecated
+- Deprecated `imgixSignedToken` configuration option in favor of using `signingToken` within `imgixDomains` array format
+
 ## [4.0.0] - 2025-08-06
 
 ### Added 

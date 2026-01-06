@@ -33,15 +33,17 @@ return [
     'apiKey' => '',
 
     // Volume handles mapped to Imgix domains
+    // Supports both string and array format:
+    // String format (legacy): 'volumeHandle' => 'domain.imgix.net' or 'domain.imgix.net/path'
+    // Array format (new): 'volumeHandle' => [
+    //     'domain' => 'domain.imgix.net',
+    //     'signingToken' => 'your-token',  // Optional, for secure URLs
+    //     'path' => 'subfolder/path',      // Optional, path prefix (without leading/trailing slashes)
+    // ]
     'imgixDomains' => [],
 
-    // Imgix signed URLs token (legacy - use imgixSignedTokens for multiple domains)
+    // Imgix signed URLs token (deprecated - use signingToken in imgixDomains array)
     'imgixSignedToken' => '',
-
-    // Volume handles mapped to Imgix signed tokens
-    // Use this to set different secure tokens for each imgix domain/source
-    // Example: ['volumeHandle1' => 'token1', 'volumeHandle2' => 'token2']
-    'imgixSignedTokens' => [],
 
     // Lazy load attribute prefix
     'lazyLoadPrefix' => '',

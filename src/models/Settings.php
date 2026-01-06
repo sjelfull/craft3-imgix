@@ -46,18 +46,12 @@ class Settings extends Model
     public $imgixDomains = [];
 
     /**
-     * Imgix signed URLs token (legacy single token)
+     * Imgix signed URLs token (deprecated - use signingToken in imgixDomains array)
      *
      * @var string
+     * @deprecated Use signingToken in imgixDomains array configuration
      */
     public $imgixSignedToken = '';
-
-    /**
-     * Volume handles mapped to Imgix signed tokens
-     *
-     * @var array
-     */
-    public $imgixSignedTokens = [];
 
     /**
      * @var string
@@ -76,34 +70,58 @@ class Settings extends Model
     }
 
     /**
-     * Get the signing token for a specific volume handle or domain
+     * Get domain configuration for a volume handle
+     * Supports both legacy string format and new array format
      * 
-     * @param string|null $volumeHandleOrDomain Volume handle or domain to lookup token for
-     * @return string|null The signing token or null if not found
+     * @param string $volumeHandle Volume handle to lookup
+     * @return array|null Array with 'domain', 'signingToken', and 'path' keys, or null if not found
      */
-    public function getSigningToken(?string $volumeHandleOrDomain = null): ?string
+    public function getDomainConfig(string $volumeHandle): ?array
     {
-        // If a specific volume/domain is provided, try to find it in the new mapping
-        if ($volumeHandleOrDomain && !empty($this->imgixSignedTokens)) {
-            // First try direct lookup by volume handle
-            if (isset($this->imgixSignedTokens[$volumeHandleOrDomain])) {
-                return Craft::parseEnv($this->imgixSignedTokens[$volumeHandleOrDomain]);
-            }
-            
-            // Try to extract just the domain name (without path) and look it up
-            $domainParts = explode('/', $volumeHandleOrDomain, 2);
-            $domain = $domainParts[0];
-            if (isset($this->imgixSignedTokens[$domain])) {
-                return Craft::parseEnv($this->imgixSignedTokens[$domain]);
-            }
+        if (!isset($this->imgixDomains[$volumeHandle])) {
+            return null;
         }
-        
-        // Fall back to the legacy single token if set
+
+        $config = $this->imgixDomains[$volumeHandle];
+
+        // Handle new array format
+        if (is_array($config)) {
+            $domain = $config['domain'] ?? null;
+            $signingToken = isset($config['signingToken']) ? Craft::parseEnv($config['signingToken']) : null;
+            $path = $config['path'] ?? '';
+
+            if ($domain === null) {
+                return null;
+            }
+
+            // Normalize path - trim and ensure no leading/trailing slashes
+            if (!empty($path)) {
+                $path = trim($path, '/');
+            }
+
+            return [
+                'domain' => $domain,
+                'signingToken' => $signingToken,
+                'path' => $path,
+            ];
+        }
+
+        // Handle legacy string format (domain or domain/path)
+        $domainParts = explode('/', $config, 2);
+        $domain = $domainParts[0];
+        $path = count($domainParts) === 2 ? $domainParts[1] : '';
+
+        // Use deprecated imgixSignedToken as fallback for legacy format
+        $signingToken = null;
         if (!empty($this->imgixSignedToken)) {
-            return Craft::parseEnv($this->imgixSignedToken);
+            $signingToken = Craft::parseEnv($this->imgixSignedToken);
         }
-        
-        return null;
+
+        return [
+            'domain' => $domain,
+            'signingToken' => $signingToken,
+            'path' => $path,
+        ];
     }
 
     /**
@@ -116,8 +134,6 @@ class Settings extends Model
             ['imgixDomains', 'default', 'value' => []],
             ['imgixSignedToken', 'string'],
             ['imgixSignedToken', 'default', 'value' => ''],
-            ['imgixSignedTokens', 'array'],
-            ['imgixSignedTokens', 'default', 'value' => []],
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
         ];
