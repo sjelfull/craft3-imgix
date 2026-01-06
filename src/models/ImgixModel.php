@@ -426,6 +426,19 @@ class ImgixModel extends Model
         $useShortForm = isset($transform['w']) || isset($transform['h']);
         $widthKey = $useShortForm ? 'w' : 'width';
         $heightKey = $useShortForm ? 'h' : 'height';
+        
+        // Normalize: remove alternate form to avoid conflicts
+        if ($widthKey === 'w' && isset($transform['width'])) {
+            unset($transform['width']);
+        } elseif ($widthKey === 'width' && isset($transform['w'])) {
+            unset($transform['w']);
+        }
+        
+        if ($heightKey === 'h' && isset($transform['height'])) {
+            unset($transform['height']);
+        } elseif ($heightKey === 'height' && isset($transform['h'])) {
+            unset($transform['h']);
+        }
 
         // If both sizes and ratio is specified, let ratio take control based on width
         if ($w !== null && $h !== null) {
