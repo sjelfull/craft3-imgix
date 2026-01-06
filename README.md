@@ -71,11 +71,14 @@ Create a `config/imgix.php` file with the following options:
 
 ```php
 <?php
+
+use craft\helpers\App;
+
 return [
     // imgix API key (required for purging assets)
     // Generate a new API key at: https://dashboard.imgix.com/api-keys/new
     // Ensure it has 'Purge' permissions
-    'apiKey' => getenv('IMGIX_API_KEY'),
+    'apiKey' => App::env('IMGIX_API_KEY'),
 
     // Map Craft volume handles to imgix domains (required)
     // This tells the plugin which imgix domain to use for each asset volume
@@ -89,7 +92,7 @@ return [
     // imgix signed URL token (optional, but recommended for security)
     // Generate from: https://dashboard.imgix.com/sources
     // Prevents URL tampering and unauthorized image transformations
-    'imgixSignedToken' => getenv('IMGIX_SIGNED_TOKEN'),
+    'imgixSignedToken' => App::env('IMGIX_SIGNED_TOKEN'),
 
     // Lazy load attribute prefix (optional, defaults to 'data-')
     // Used when lazyLoad is enabled to prefix src attributes
@@ -119,11 +122,14 @@ Then reference them in `config/imgix.php`:
 
 ```php
 <?php
+
+use craft\helpers\App;
+
 return [
-    'apiKey' => getenv('IMGIX_API_KEY'),
-    'imgixSignedToken' => getenv('IMGIX_SIGNED_TOKEN'),
+    'apiKey' => App::env('IMGIX_API_KEY'),
+    'imgixSignedToken' => App::env('IMGIX_SIGNED_TOKEN'),
     'imgixDomains' => [
-        'uploads' => getenv('IMGIX_DOMAIN'),
+        'uploads' => App::env('IMGIX_DOMAIN'),
     ],
 ];
 ```
