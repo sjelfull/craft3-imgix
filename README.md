@@ -540,7 +540,7 @@ return [
 
 ## Preventing Upscaling
 
-By default, Imgix will upscale images to match the requested dimensions. If you want to prevent images from being upscaled beyond their original size, you can enable the `preventUpscaling` setting in `config/imgix.php`:
+By default, Imgix will upscale images to match the requested dimensions. For example, if your original image is 800×600 pixels but you request 1920×1080, Imgix will enlarge it. If you want to prevent images from being upscaled beyond their original size, you can enable the `preventUpscaling` setting in `config/imgix.php`:
 
 ```php
 return [
@@ -553,10 +553,11 @@ When enabled, this setting automatically applies `fit=max` to all transformation
 If you need to override this behavior for specific transformations, you can explicitly set a different `fit` parameter:
 
 ```twig
-{# This will use fit=max if preventUpscaling is enabled #}
+{# Example: If your image is 800×600 but you request 1920×1080 #}
+{# With preventUpscaling enabled, it stays at 800×600 (fit=max applied automatically) #}
 {% set image = craft.imgix.transformImage(asset, { width: 1920, height: 1080 }) %}
 
-{# This will always use fit=crop, regardless of the preventUpscaling setting #}
+{# This will always use fit=crop and may upscale, regardless of the preventUpscaling setting #}
 {% set croppedImage = craft.imgix.transformImage(asset, { width: 1920, height: 1080, fit: 'crop' }) %}
 ```
 
