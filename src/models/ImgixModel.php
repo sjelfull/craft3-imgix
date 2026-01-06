@@ -207,8 +207,8 @@ class ImgixModel extends Model
 
         if (gettype($image) === 'string') {
             $domains = Imgix::$plugin->getSettings()->imgixDomains;
-            $firstHandle = reset($domains);
-            $domain = $domains[ $firstHandle ];
+            $firstHandle = array_key_first($domains);
+            $domain = $firstHandle !== null ? $domains[$firstHandle] : null;
             $domainParts = [];
             if ($domain !== null) {
                 $domainParts = explode('/', $domain, 2);
