@@ -154,7 +154,7 @@ Alternatively, you may use the native loading attribute `loading="lazy"` on your
 
 ## Preventing Upscaling
 
-By default, imgix will upscale images to match the requested dimensions. If you want to prevent images from being upscaled beyond their original size, you can enable the `preventUpscaling` setting in `config/imgix.php`:
+By default, Imgix will upscale images to match the requested dimensions. If you want to prevent images from being upscaled beyond their original size, you can enable the `preventUpscaling` setting in `config/imgix.php`:
 
 ```php
 return [
