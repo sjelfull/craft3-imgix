@@ -59,6 +59,9 @@ This plugin will lookup the Asset image's source handle, and figure out which im
 
        // Lazy load attribute prefix
        'lazyLoadPrefix' => '',
+
+       // Prevent upscaling images beyond their original size
+       'preventUpscaling' => false,
    ];
 ```
 
@@ -148,6 +151,28 @@ To replace `src` and `srcset` with `data-src` and `data-srcset` for javascript-b
 If you need to prefix with something other than `data-`, you can set the configuration value `lazyLoadPrefix` in `config/imgix.php`.
 
 Alternatively, you may use the native loading attribute `loading="lazy"` on your image tag as in this example: `{{ image.srcset({ loading: 'lazy' }) }}`.
+
+## Preventing Upscaling
+
+By default, imgix will upscale images to match the requested dimensions. If you want to prevent images from being upscaled beyond their original size, you can enable the `preventUpscaling` setting in `config/imgix.php`:
+
+```php
+return [
+    'preventUpscaling' => true,
+];
+```
+
+When enabled, this setting automatically applies `fit=max` to all transformations that don't already have a `fit` parameter specified. The `fit=max` mode scales images to fit within the specified dimensions while preventing upscaling beyond the original image size.
+
+If you need to override this behavior for specific transformations, you can explicitly set a different `fit` parameter:
+
+```twig
+{# This will use fit=max if preventUpscaling is enabled #}
+{% set image = craft.imgix.transformImage(asset, { width: 1920, height: 1080 }) %}
+
+{# This will always use fit=crop, regardless of the preventUpscaling setting #}
+{% set croppedImage = craft.imgix.transformImage(asset, { width: 1920, height: 1080, fit: 'crop' }) %}
+```
 
 ## Roadmap
 
