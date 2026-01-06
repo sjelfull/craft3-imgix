@@ -294,14 +294,14 @@ class ImgixService extends Component
         
         $transforms = [];
         
-        // Add volume-specific transforms if they exist
-        if (isset($transformsConfig[$volumeHandle]) && is_array($transformsConfig[$volumeHandle])) {
-            $transforms = array_merge($transforms, $transformsConfig[$volumeHandle]);
-        }
-        
-        // Add global transforms if they exist
+        // Add global transforms first (can be overridden by volume-specific)
         if (isset($transformsConfig['global']) && is_array($transformsConfig['global'])) {
             $transforms = array_merge($transforms, $transformsConfig['global']);
+        }
+        
+        // Add volume-specific transforms (these override/extend global)
+        if (isset($transformsConfig[$volumeHandle]) && is_array($transformsConfig[$volumeHandle])) {
+            $transforms = array_merge($transforms, $transformsConfig[$volumeHandle]);
         }
         
         return $transforms;

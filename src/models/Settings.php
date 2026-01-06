@@ -103,11 +103,40 @@ class Settings extends Model
             ['imgixSignedToken', 'default', 'value' => ''],
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
+            [
+                'autoGenerate',
+                'validateAutoGenerate',
+            ],
             ['autoGenerate', 'default', 'value' => false],
             ['warmCache', 'boolean'],
             ['warmCache', 'default', 'value' => false],
             ['transforms', 'array'],
             ['transforms', 'default', 'value' => []],
         ];
+    }
+
+    /**
+     * Validates the autoGenerate property
+     *
+     * @param string $attribute
+     */
+    public function validateAutoGenerate(string $attribute): void
+    {
+        $value = $this->$attribute;
+        
+        // Must be either a boolean or an array
+        if (!is_bool($value) && !is_array($value)) {
+            $this->addError($attribute, Craft::t('imgix', 'Auto-generate must be either a boolean or an array of volume handles.'));
+        }
+        
+        // If it's an array, all values must be strings
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (!is_string($item)) {
+                    $this->addError($attribute, Craft::t('imgix', 'Auto-generate array must contain only volume handle strings.'));
+                    break;
+                }
+            }
+        }
     }
 }

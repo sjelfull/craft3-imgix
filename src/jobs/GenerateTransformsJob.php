@@ -76,48 +76,74 @@ class GenerateTransformsJob extends BaseJob
         }
 
         for ($step = 0; $step < $totalSteps; ++$step) {
-            $this->setProgress($queue, ($step + 1) / $totalSteps);
+            // Update progress - use modulo to reduce frequency for large transform sets
+            if ($totalSteps <= 10 || $step % 5 === 0 || $step === $totalSteps - 1) {
+                $this->setProgress($queue, ($step + 1) / $totalSteps);
+            }
+            
             $transform = $this->transforms[$step];
 
             // Generate the imgix URL - this will cause imgix to create the transform on first request
             $imgixModel = Imgix::$plugin->imgixService->transformImage($asset, $transform);
             
-            if ($imgixModel) {
-                $url = $imgixModel->getUrl();
-                
-                Craft::trace(
+            if (!$imgixModel) {
+                Craft::warning(
                     Craft::t(
                         'imgix',
-                        'Generated transform for asset #{id}: {url}',
-                        ['id' => $asset->id, 'url' => $url]
+                        'Failed to create imgix model for asset #{id} with transform: {transform}',
+                        ['id' => $asset->id, 'transform' => json_encode($transform)]
                     ),
                     'imgix'
                 );
-                
-                // Optionally warm the cache by making a HEAD request
-                if ($this->warmCache && $url && $client) {
-                    try {
-                        $client->head($url);
-                        
-                        Craft::trace(
-                            Craft::t(
-                                'imgix',
-                                'Warmed cache for transform: {url}',
-                                ['url' => $url]
-                            ),
-                            'imgix'
-                        );
-                    } catch (\Exception $e) {
-                        // Silently fail - cache warming is optional
-                        Craft::warning(
-                            Craft::t(
-                                'imgix',
-                                'Failed to warm cache for {url}: {error}',
-                                ['url' => $url, 'error' => $e->getMessage()]
-                            ),
-                            'imgix'
-                        );
-                    }
+                continue;
+            }
+            
+            $url = $imgixModel->getUrl();
+            
+            if (!$url) {
+                Craft::warning(
+                    Craft::t(
+                        'imgix',
+                        'Failed to generate URL for asset #{id} with transform: {transform}',
+                        ['id' => $asset->id, 'transform' => json_encode($transform)]
+                    ),
+                    'imgix'
+                );
+                continue;
+            }
+            
+            Craft::trace(
+                Craft::t(
+                    'imgix',
+                    'Generated transform for asset #{id}: {url}',
+                    ['id' => $asset->id, 'url' => $url]
+                ),
+                'imgix'
+            );
+            
+            // Optionally warm the cache by making a HEAD request
+            if ($this->warmCache && $client) {
+                try {
+                    $client->head($url);
+                    
+                    Craft::trace(
+                        Craft::t(
+                            'imgix',
+                            'Warmed cache for transform: {url}',
+                            ['url' => $url]
+                        ),
+                        'imgix'
+                    );
+                } catch (\Exception $e) {
+                    // Silently fail - cache warming is optional
+                    Craft::warning(
+                        Craft::t(
+                            'imgix',
+                            'Failed to warm cache for {url}: {error}',
+                            ['url' => $url, 'error' => $e->getMessage()]
+                        ),
+                        'imgix'
+                    );
                 }
             }
         }

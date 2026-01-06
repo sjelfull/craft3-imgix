@@ -181,7 +181,7 @@ return [
             ['width' => 800, 'height' => 600],
             ['width' => 1200],
         ],
-        // Volume-specific transforms (these will be added to global transforms)
+        // Volume-specific transforms (added after global transforms)
         'volumeHandle' => [
             ['width' => 400, 'height' => 300, 'fit' => 'crop'],
             ['width' => 800, 'height' => 600, 'fit' => 'crop'],
@@ -196,7 +196,7 @@ When an asset is uploaded or replaced, the plugin will automatically queue a job
 
 - `autoGenerate`: Enable/disable auto-generation. Set to `true` to enable for all volumes, or provide an array of volume handles to enable selectively.
 - `warmCache`: When `true`, makes HTTP HEAD requests to imgix URLs to trigger immediate processing. Default is `false` (recommended).
-- `transforms`: Define transform configurations. Supports `global` transforms and volume-specific transforms.
+- `transforms`: Define transform configurations. Supports `global` transforms (applied first) and volume-specific transforms (added after global).
 
 **Note:** Since imgix is a URL-based image processing service, "generating" transforms means constructing the imgix URLs with the specified parameters. The actual image processing happens on imgix's servers. When `warmCache` is disabled (recommended), imgix will process images on the first user request. When `warmCache` is enabled, the plugin makes HEAD requests to trigger processing immediately.
 
