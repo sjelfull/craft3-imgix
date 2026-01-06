@@ -38,18 +38,21 @@ Perfect for high-traffic sites that need fast, optimized images without the serv
   - [Lazy loading](#lazy-loading)
   - [Advanced usage](#advanced-usage)
 - [Common use cases](#common-use-cases)
+- [Preventing upscaling](#preventing-upscaling)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 
-## Requirements
+**Understanding Volume Mapping:**
 
-This plugin requires Craft CMS 5.0.0 or later.
+The `imgixDomains` array maps your Craft volume handles to imgix domains. The plugin looks up the asset's volume handle to determine which imgix domain to use.
 
-## Installation
+- **Simple mapping:** `'uploads' => 'my-site.imgix.net'` - all assets from the 'uploads' volume use this domain
+- **Path mapping:** `'heroImages' => 'my-site.imgix.net/heroes'` - adds a path prefix to all images
+- **Multiple domains:** You can use different imgix domains for different volumes
 
-To install the plugin, follow these instructions.
+### Environment variables
 
-1. Open your terminal and go to your Craft project:
+It's recommended to store sensitive values like API keys in environment variables. In your `.env` file:
 
     ```bash
     cd /path/to/project
@@ -114,6 +117,11 @@ return [
     // Used when lazyLoad is enabled to prefix src attributes
     // Set to empty string if using native loading="lazy"
     'lazyLoadPrefix' => 'data-',
+
+    // Prevent upscaling images beyond their original size (optional, defaults to false)
+    // When enabled, automatically applies fit=max to prevent upscaling
+    // Images smaller than requested dimensions won't be enlarged
+    'preventUpscaling' => false,
 ];
 ```
 
@@ -530,6 +538,29 @@ return [
     
     {{ avatarImage.img({ alt: currentUser.fullName, class: 'avatar' }) }}
 {% endif %}
+```
+
+## Preventing Upscaling
+
+By default, Imgix will upscale images to match the requested dimensions. For example, if your original image is 800×600 pixels but you request 1920×1080, Imgix will enlarge it. If you want to prevent images from being upscaled beyond their original size, you can enable the `preventUpscaling` setting in `config/imgix.php`:
+
+```php
+return [
+    'preventUpscaling' => true,
+];
+```
+
+When enabled, this setting automatically applies `fit=max` to all transformations that don't already have a `fit` parameter specified. The `fit=max` mode scales images to fit within the specified dimensions while preventing upscaling beyond the original image size.
+
+If you need to override this behavior for specific transformations, you can explicitly set a different `fit` parameter:
+
+```twig
+{# Example: If your image is 800×600 but you request 1920×1080 #}
+{# With preventUpscaling enabled, it stays at 800×600 (fit=max applied automatically) #}
+{% set image = craft.imgix.transformImage(asset, { width: 1920, height: 1080 }) %}
+
+{# This will always use fit=crop and may upscale, regardless of the preventUpscaling setting #}
+{% set croppedImage = craft.imgix.transformImage(asset, { width: 1920, height: 1080, fit: 'crop' }) %}
 ```
 
 ## Troubleshooting

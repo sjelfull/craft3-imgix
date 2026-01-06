@@ -40,4 +40,7 @@ return [
 
     // Lazy load attribute prefix
     'lazyLoadPrefix' => '',
+
+    // Prevent upscaling images beyond their original size
+    'preventUpscaling' => false,
 ];

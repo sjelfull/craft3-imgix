@@ -57,6 +57,13 @@ class Settings extends Model
      */
     public $lazyLoadPrefix = '';
 
+    /**
+     * Prevent upscaling images beyond their original size
+     *
+     * @var bool
+     */
+    public $preventUpscaling = false;
+
     public function getApiKey()
     {
         $apiKey = Craft::parseEnv($this->apiKey);
@@ -80,6 +87,8 @@ class Settings extends Model
             ['imgixSignedToken', 'default', 'value' => ''],
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
+            ['preventUpscaling', 'boolean'],
+            ['preventUpscaling', 'default', 'value' => false],
         ];
     }
 }
