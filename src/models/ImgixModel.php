@@ -415,8 +415,11 @@ class ImgixModel extends Model
         }
 
         $ratio = (float)$transform['ratio'];
-        $w = isset($transform['w']) ? $transform['w'] : (isset($transform['width']) ? $transform['width'] : null);
-        $h = isset($transform['h']) ? $transform['h'] : (isset($transform['height']) ? $transform['height'] : null);
+        
+        // Check for width parameter (w takes precedence over width)
+        $w = $transform['w'] ?? $transform['width'] ?? null;
+        // Check for height parameter (h takes precedence over height)
+        $h = $transform['h'] ?? $transform['height'] ?? null;
 
         // Determine which keys to use for setting calculated values
         $widthKey = isset($transform['w']) ? 'w' : 'width';
