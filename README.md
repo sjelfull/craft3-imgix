@@ -8,20 +8,20 @@ Use imgix with Craft
 ---
 <!-- /ix-docs-ignore -->
 
-## Table of Contents
+## Table of contents
 
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
-  - [Quick Start](#quick-start)
-  - [Configuration Options](#configuration-options)
-  - [Environment Variables](#environment-variables)
+  - [Quick start](#quick-start)
+  - [Configuration options](#configuration-options)
+  - [Environment variables](#environment-variables)
 - [Usage](#usage)
-  - [Basic Usage](#basic-usage)
-  - [Transform Options](#transform-options)
-  - [Lazy Loading](#lazy-loading)
-  - [Advanced Usage](#advanced-usage)
-- [Common Use Cases](#common-use-cases)
+  - [Basic usage](#basic-usage)
+  - [Transform options](#transform-options)
+  - [Lazy loading](#lazy-loading)
+  - [Advanced usage](#advanced-usage)
+- [Common use cases](#common-use-cases)
 - [Troubleshooting](#troubleshooting)
 - [Roadmap](#roadmap)
 
@@ -49,7 +49,7 @@ To install the plugin, follow these instructions.
 
 ## Configuration
 
-### Quick Start
+### Quick start
 
 Copy the `config.php` file from the plugin's `src` directory into your Craft project's `config` folder and rename it to `imgix.php`.
 
@@ -65,7 +65,7 @@ return [
 ];
 ```
 
-### Configuration Options
+### Configuration options
 
 Create a `config/imgix.php` file with the following options:
 
@@ -109,7 +109,7 @@ The `imgixDomains` array maps your Craft volume handles to imgix domains. The pl
 - **Path mapping:** `'heroImages' => 'my-site.imgix.net/heroes'` - adds a path prefix to all images
 - **Multiple domains:** You can use different imgix domains for different volumes
 
-### Environment Variables
+### Environment variables
 
 It's recommended to store sensitive values like API keys in environment variables. In your `.env` file:
 
@@ -136,7 +136,7 @@ return [
 
 ## Usage
 
-### Basic Usage
+### Basic usage
 
 The plugin provides the `craft.imgix.transformImage()` method in Twig templates to transform images using imgix.
 
@@ -169,7 +169,7 @@ The plugin provides the `craft.imgix.transformImage()` method in Twig templates 
 {{ transformedImage.srcset() }}
 ```
 
-### Transform Options
+### Transform options
 
 imgix supports a wide range of transformation parameters. Here are the most commonly used:
 
@@ -254,7 +254,7 @@ The plugin automatically uses Craft's focal point if set on the asset:
 }) %}
 ```
 
-### Lazy Loading
+### Lazy loading
 
 **JavaScript-based lazy loading:**
 
@@ -297,7 +297,7 @@ return [
 ];
 ```
 
-### Advanced Usage
+### Advanced usage
 
 **Using with Element API:**
 
@@ -373,9 +373,9 @@ return [
 {{ dump(image.transformed) }}
 ```
 
-## Common Use Cases
+## Common use cases
 
-### Responsive Hero Image
+### Responsive hero image
 
 ```twig
 {% set asset = entry.heroImage.one() %}
@@ -401,7 +401,7 @@ return [
 }) }}
 ```
 
-### Product Thumbnail Gallery
+### Product thumbnail gallery
 
 ```twig
 {% set productImages = entry.productGallery.all() %}
@@ -426,7 +426,7 @@ return [
 </div>
 ```
 
-### Blog Post Featured Images
+### Blog post featured images
 
 ```twig
 {% for entry in craft.entries.section('blog').all() %}
@@ -454,7 +454,7 @@ return [
 {% endfor %}
 ```
 
-### Art Direction with Different Crops
+### Art direction with different crops
 
 ```twig
 {% set asset = entry.bannerImage.one() %}
@@ -481,7 +481,7 @@ return [
 </picture>
 ```
 
-### Background Image with Blur Effect
+### Background image with blur effect
 
 ```twig
 {% set asset = entry.backgroundImage.one() %}
@@ -498,7 +498,7 @@ return [
 </div>
 ```
 
-### Optimized Avatar Images
+### Optimized avatar images
 
 ```twig
 {% set avatar = currentUser.photo.one() %}
@@ -518,7 +518,7 @@ return [
 
 ## Troubleshooting
 
-### Images Not Loading
+### Images not loading
 
 **Problem:** Images aren't transforming or showing up.
 
@@ -528,7 +528,7 @@ return [
 3. Ensure your imgix source is properly configured to point to your asset storage
 4. Check that the asset exists and has a valid path
 
-### Signed URLs Not Working
+### Signed URLs not working
 
 **Problem:** Getting 403 errors or signature mismatches.
 
@@ -537,7 +537,7 @@ return [
 2. Make sure URL signing is enabled in your imgix source
 3. Check for trailing/leading whitespace in your token
 
-### Purging Not Working
+### Purging not working
 
 **Problem:** Asset cache isn't being purged when assets are updated.
 
@@ -547,7 +547,7 @@ return [
 3. Ensure the API key has "Purge" permission enabled
 4. Check that you're not using an old API key (< 50 characters) - these are deprecated
 
-### Focal Point Not Applied
+### Focal point not applied
 
 **Problem:** Crop isn't respecting Craft's focal point.
 
@@ -556,7 +556,7 @@ return [
 2. Verify the focal point is set on the asset in Craft
 3. Check that you're not manually overriding `fp-x` and `fp-y` in your transforms
 
-### Quality Issues
+### Quality issues
 
 **Problem:** Images look too compressed or low quality.
 
@@ -566,7 +566,7 @@ return [
 3. Remove excessive sharpening: `sharp: 5-10` is usually sufficient
 4. Ensure source images are high quality
 
-### Lazy Loading Not Working
+### Lazy loading not working
 
 **Problem:** Lazy loading attributes not appearing.
 
@@ -576,7 +576,7 @@ return [
 3. Ensure your JavaScript lazy loading library is properly initialized
 4. For native loading, use `loading: 'lazy'` instead of `lazyLoad: true`
 
-### Different Environments
+### Different environments
 
 **Problem:** Images work locally but not in production (or vice versa).
 
@@ -595,7 +595,7 @@ return [
 
 ---
 
-## Additional Resources
+## Additional resources
 
 - [imgix Documentation](https://docs.imgix.com/)
 - [imgix URL API Reference](https://docs.imgix.com/apis/rendering)
