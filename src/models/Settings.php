@@ -46,11 +46,18 @@ class Settings extends Model
     public $imgixDomains = [];
 
     /**
-     * Imgix signed URLs token
+     * Imgix signed URLs token (legacy single token)
      *
      * @var string
      */
     public $imgixSignedToken = '';
+
+    /**
+     * Volume handles mapped to Imgix signed tokens
+     *
+     * @var array
+     */
+    public $imgixSignedTokens = [];
 
     /**
      * @var string
@@ -69,6 +76,37 @@ class Settings extends Model
     }
 
     /**
+     * Get the signing token for a specific volume handle or domain
+     * 
+     * @param string|null $volumeHandleOrDomain Volume handle or domain to lookup token for
+     * @return string|null The signing token or null if not found
+     */
+    public function getSigningToken(?string $volumeHandleOrDomain = null): ?string
+    {
+        // If a specific volume/domain is provided, try to find it in the new mapping
+        if ($volumeHandleOrDomain && !empty($this->imgixSignedTokens)) {
+            // First try direct lookup by volume handle
+            if (isset($this->imgixSignedTokens[$volumeHandleOrDomain])) {
+                return Craft::parseEnv($this->imgixSignedTokens[$volumeHandleOrDomain]);
+            }
+            
+            // Try to extract just the domain name (without path) and look it up
+            $domainParts = explode('/', $volumeHandleOrDomain, 2);
+            $domain = $domainParts[0];
+            if (isset($this->imgixSignedTokens[$domain])) {
+                return Craft::parseEnv($this->imgixSignedTokens[$domain]);
+            }
+        }
+        
+        // Fall back to the legacy single token if set
+        if (!empty($this->imgixSignedToken)) {
+            return Craft::parseEnv($this->imgixSignedToken);
+        }
+        
+        return null;
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules(): array
@@ -78,6 +116,8 @@ class Settings extends Model
             ['imgixDomains', 'default', 'value' => []],
             ['imgixSignedToken', 'string'],
             ['imgixSignedToken', 'default', 'value' => ''],
+            ['imgixSignedTokens', 'array'],
+            ['imgixSignedTokens', 'default', 'value' => []],
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
         ];

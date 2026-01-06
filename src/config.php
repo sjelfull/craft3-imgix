@@ -35,8 +35,13 @@ return [
     // Volume handles mapped to Imgix domains
     'imgixDomains' => [],
 
-    // Imgix signed URLs token
+    // Imgix signed URLs token (legacy - use imgixSignedTokens for multiple domains)
     'imgixSignedToken' => '',
+
+    // Volume handles mapped to Imgix signed tokens
+    // Use this to set different secure tokens for each imgix domain/source
+    // Example: ['volumeHandle1' => 'token1', 'volumeHandle2' => 'token2']
+    'imgixSignedTokens' => [],
 
     // Lazy load attribute prefix
     'lazyLoadPrefix' => '',

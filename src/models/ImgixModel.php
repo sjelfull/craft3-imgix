@@ -179,7 +179,8 @@ class ImgixModel extends Model
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
+            // Use the new method that supports per-domain tokens
+            if ($token = Imgix::$plugin->getSettings()->getSigningToken($sourceHandle)) {
                 $this->builder->setSignKey($token);
             }
 
@@ -217,7 +218,9 @@ class ImgixModel extends Model
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
+            // Use the new method that supports per-domain tokens
+            // For string paths, use the first volume handle as lookup key
+            if ($token = Imgix::$plugin->getSettings()->getSigningToken($firstHandle)) {
                 $this->builder->setSignKey($token);
             }
 

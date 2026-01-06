@@ -214,7 +214,8 @@ class ImgixService extends Component
 
         $builder = new UrlBuilder($domain);
         $builder->setUseHttps(true);
-        if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
+        // Use the new method that supports per-domain tokens
+        if ($token = Imgix::$plugin->getSettings()->getSigningToken($sourceHandle)) {
             $builder->setSignKey($token);
         }
         $url = UrlHelper::stripQueryString($builder->createURL($assetPath));

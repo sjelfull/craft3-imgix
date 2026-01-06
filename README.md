@@ -52,15 +52,44 @@ This plugin will lookup the Asset image's source handle, and figure out which im
        'apiKey'         => '',
 
        // Volume handles mapped to imgix domains
-       'imgixDomains'   => [],
+       'imgixDomains'   => [
+           'volumeHandle1' => 'domain1.imgix.net',
+           'volumeHandle2' => 'domain2.imgix.net/subfolder',
+       ],
 
-       // imgix signed URLs token
+       // imgix signed URLs token (legacy - for single domain)
        'imgixSignedToken' => '',
+
+       // Volume handles mapped to imgix signed tokens (for multiple domains)
+       // Each imgix source has its own secure token
+       'imgixSignedTokens' => [
+           'volumeHandle1' => 'token_for_domain1',
+           'volumeHandle2' => 'token_for_domain2',
+       ],
 
        // Lazy load attribute prefix
        'lazyLoadPrefix' => '',
    ];
 ```
+
+### Secure URLs with Multiple Domains
+
+If you have multiple imgix sources with different secure tokens, use the `imgixSignedTokens` configuration option. This allows you to map each volume handle to its corresponding secure token:
+
+```php
+return [
+    'imgixDomains' => [
+        'uploads' => 'my-uploads.imgix.net',
+        'products' => 'my-products.imgix.net',
+    ],
+    'imgixSignedTokens' => [
+        'uploads' => 'secure_token_for_uploads_source',
+        'products' => 'secure_token_for_products_source',
+    ],
+];
+```
+
+For backward compatibility, if you only have one imgix source, you can still use the `imgixSignedToken` configuration option (string) instead of `imgixSignedTokens` (array).
 
 ## Using imgix
 
