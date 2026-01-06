@@ -1,13 +1,13 @@
 <!-- ix-docs-ignore -->
-# imgix plugin for Craft CMS 5.x
+# Imgix plugin for Craft CMS 5.x
 
-Use [imgix](https://imgix.com) with Craft CMS to automatically optimize, resize, and transform your images on-the-fly.
+Use [Imgix](https://imgix.com) with Craft CMS to automatically optimize, resize, and transform your images on-the-fly.
 
 ![Screenshot](resources/img/plugin-icon.png)
 
 ## What does this plugin do?
 
-This plugin integrates imgix's powerful image processing API with Craft CMS, giving you instant access to real-time image transformations. Instead of generating and storing multiple versions of your images on your server, imgix handles all the heavy lifting in the cloud.
+This plugin integrates Imgix's powerful image processing API with Craft CMS, giving you instant access to real-time image transformations. Instead of generating and storing multiple versions of your images on your server, Imgix handles all the heavy lifting in the cloud.
 
 **Key features:**
 
@@ -16,7 +16,7 @@ This plugin integrates imgix's powerful image processing API with Craft CMS, giv
 - **Responsive images made easy** - Generate perfect `srcset` attributes with minimal code
 - **Smart cropping** - Automatically use Craft's focal points for intelligent cropping
 - **Lazy loading support** - Built-in helpers for both JavaScript-based and native lazy loading
-- **Cache purging** - Automatically purge imgix's cache when you update assets in Craft
+- **Cache purging** - Automatically purge Imgix's cache when you update assets in Craft
 - **Signed URLs** - Secure your images with signed URLs to prevent unauthorized transformations
 
 Perfect for high-traffic sites that need fast, optimized images without the server overhead.
@@ -61,7 +61,7 @@ To install the plugin, follow these instructions.
     composer require superbig/craft3-imgix
     ```
 
-3. In the Control Panel, go to Settings → Plugins and click the “Install” button for imgix.
+3. In the Control Panel, go to Settings → Plugins and click the “Install” button for Imgix.
 
 ## Configuration
 
@@ -187,7 +187,7 @@ The plugin provides the `craft.imgix.transformImage()` method in Twig templates 
 
 ### Transform options
 
-imgix supports a wide range of transformation parameters. Here are the most commonly used:
+Imgix supports a wide range of transformation parameters. Here are the most commonly used:
 
 **Size & Cropping:**
 
@@ -524,7 +524,7 @@ return [
         width: 80,
         height: 80,
         fit: 'crop',
-        'border-radius': '50%',  {# imgix can create circular images #}
+        'border-radius': '50%',  {# Imgix can create circular images #}
         auto: 'format,compress'
     }) %}
     
@@ -540,8 +540,8 @@ return [
 
 **Solutions:**
 1. Check that your volume handle matches the key in `imgixDomains` config
-2. Verify your imgix domain is correct in the config file
-3. Ensure your imgix source is properly configured to point to your asset storage
+2. Verify your Imgix domain is correct in the config file
+3. Ensure your Imgix source is properly configured to point to your asset storage
 4. Check that the asset exists and has a valid path
 
 ### Signed URLs not working
@@ -549,8 +549,8 @@ return [
 **Problem:** Getting 403 errors or signature mismatches.
 
 **Solutions:**
-1. Verify your `imgixSignedToken` matches the token in your imgix source settings
-2. Make sure URL signing is enabled in your imgix source
+1. Verify your `imgixSignedToken` matches the token in your Imgix source settings
+2. Make sure URL signing is enabled in your Imgix source
 3. Check for trailing/leading whitespace in your token
 
 ### Purging not working
@@ -578,7 +578,7 @@ return [
 
 **Solutions:**
 1. Adjust the `q` parameter (quality): `q: 85` for higher quality
-2. Use `auto: 'format,compress'` to let imgix optimize automatically
+2. Use `auto: 'format,compress'` to let Imgix optimize automatically
 3. Remove excessive sharpening: `sharp: 5-10` is usually sufficient
 4. Ensure source images are high quality
 
@@ -597,24 +597,24 @@ return [
 **Problem:** Images work locally but not in production (or vice versa).
 
 **Solutions:**
-1. Use environment variables for your imgix configuration
+1. Use environment variables for your Imgix configuration
 2. Ensure `.env` files are properly configured for each environment
 3. Check that volume handles are consistent across environments
-4. Verify imgix sources are configured for both development and production URLs
+4. Verify Imgix sources are configured for both development and production URLs
 
 ## Roadmap
 
 * Look into improving srcset/API
 * Look into built-in image editor integration
-* Additional imgix parameter helpers
+* Additional Imgix parameter helpers
 * Improved focal point handling
 
 ---
 
 ## Additional resources
 
-- [imgix Documentation](https://docs.imgix.com/)
-- [imgix URL API Reference](https://docs.imgix.com/apis/rendering)
+- [Imgix Documentation](https://docs.imgix.com/)
+- [Imgix URL API Reference](https://docs.imgix.com/apis/rendering)
 - [Craft CMS Asset Documentation](https://craftcms.com/docs/5.x/reference/element-types/assets.html)
 
 ---
