@@ -428,14 +428,14 @@ class ImgixModel extends Model
         $heightKey = $useShortForm ? 'h' : 'height';
 
         // If both sizes and ratio is specified, let ratio take control based on width
-        if ($w and $h) {
+        if ($w !== null && $h !== null) {
             $transform[$heightKey] = round($w / $ratio);
         }
         else {
-            if ($w) {
+            if ($w !== null) {
                 $transform[$heightKey] = round($w / $ratio);
             }
-            elseif ($h) {
+            elseif ($h !== null) {
                 $transform[$widthKey] = round($h * $ratio);
             }
             else {
