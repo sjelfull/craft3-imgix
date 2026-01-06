@@ -56,10 +56,24 @@ class GenerateTransformsJob extends BaseJob
         $asset = Asset::find()->id($this->assetId)->one();
 
         if (!$asset) {
+            Craft::warning(
+                Craft::t(
+                    'imgix',
+                    'Asset #{id} not found for transform generation',
+                    ['id' => $this->assetId]
+                ),
+                'imgix'
+            );
             return;
         }
 
         $totalSteps = count($this->transforms);
+        
+        // Create Guzzle client once if cache warming is enabled
+        $client = null;
+        if ($this->warmCache) {
+            $client = Craft::createGuzzleClient(['timeout' => 10, 'connect_timeout' => 10]);
+        }
 
         for ($step = 0; $step < $totalSteps; ++$step) {
             $this->setProgress($queue, $step / $totalSteps);
@@ -81,9 +95,8 @@ class GenerateTransformsJob extends BaseJob
                 );
                 
                 // Optionally warm the cache by making a HEAD request
-                if ($this->warmCache && $url) {
+                if ($this->warmCache && $url && $client) {
                     try {
-                        $client = Craft::createGuzzleClient(['timeout' => 10, 'connect_timeout' => 10]);
                         $client->head($url);
                         
                         Craft::trace(

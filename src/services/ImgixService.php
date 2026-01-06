@@ -79,18 +79,16 @@ class ImgixService extends Component
             __METHOD__
         );
 
-        if ($url) {
-            // Only purge on updates, not on new assets
-            if (!$isNew) {
-                $job = new PurgeUrlsJob();
-                $job->urls = [$this->getImgixUrl($asset)];
+        // Only purge on updates, not on new assets
+        if ($url && !$isNew) {
+            $job = new PurgeUrlsJob();
+            $job->urls = [$this->getImgixUrl($asset)];
 
-                Craft::$app->getQueue()->push($job);
-            }
-            
-            // Check if auto-generate is enabled for this asset (both new and updated)
-            $this->maybeGenerateTransforms($asset);
+            Craft::$app->getQueue()->push($job);
         }
+        
+        // Check if auto-generate is enabled for this asset (both new and updated)
+        $this->maybeGenerateTransforms($asset);
     }
 
     /**
@@ -250,12 +248,8 @@ class ImgixService extends Component
         // Check if auto-generate is enabled for this volume
         // If autoGenerate is true (boolean), enable for all volumes
         // If autoGenerate is an array, check if this volume is in the list
-        $isEnabled = false;
-        if (is_bool($autoGenerate) && $autoGenerate === true) {
-            $isEnabled = true;
-        } elseif (is_array($autoGenerate) && in_array($volumeHandle, $autoGenerate, true)) {
-            $isEnabled = true;
-        }
+        $isEnabled = (is_bool($autoGenerate) && $autoGenerate) || 
+                     (is_array($autoGenerate) && in_array($volumeHandle, $autoGenerate, true));
         
         if (!$isEnabled) {
             return;
