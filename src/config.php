@@ -40,4 +40,26 @@ return [
 
     // Lazy load attribute prefix
     'lazyLoadPrefix' => '',
+
+    // Auto-generate transforms on asset upload/save
+    // Set to true to enable for all volumes, or provide an array of volume handles
+    'autoGenerate' => false,
+
+    // Transform definitions to generate automatically
+    // Can be defined globally or per volume handle
+    // Example:
+    // 'transforms' => [
+    //     // Global transforms applied to all volumes with autoGenerate enabled
+    //     'global' => [
+    //         ['width' => 400, 'height' => 300],
+    //         ['width' => 800, 'height' => 600],
+    //         ['width' => 1200],
+    //     ],
+    //     // Volume-specific transforms
+    //     'volumeHandle' => [
+    //         ['width' => 400, 'height' => 300, 'fit' => 'crop'],
+    //         ['width' => 800, 'height' => 600, 'fit' => 'crop'],
+    //     ],
+    // ]
+    'transforms' => [],
 ];

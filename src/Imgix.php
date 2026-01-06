@@ -70,8 +70,8 @@ class Imgix extends Plugin
             static function (ElementEvent $event) : void {
                 $element = $event->element;
                 $isNewElement = $event->isNew;
-                if ($element instanceof Asset && !$isNewElement) {
-                    Imgix::$plugin->imgixService->onSaveAsset($element);
+                if ($element instanceof Asset) {
+                    Imgix::$plugin->imgixService->onSaveAsset($element, $isNewElement);
                 }
             }
         );

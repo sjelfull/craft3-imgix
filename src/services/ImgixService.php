@@ -18,6 +18,7 @@ use GuzzleHttp\Exception\RequestException;
 
 use Imgix\UrlBuilder;
 use superbig\imgix\Imgix;
+use superbig\imgix\jobs\GenerateTransformsJob;
 use superbig\imgix\jobs\PurgeUrlsJob;
 use superbig\imgix\models\ImgixModel;
 use superbig\imgix\models\Settings;
@@ -67,8 +68,9 @@ class ImgixService extends Component
 
     /**
      * @param Asset $asset
+     * @param bool $isNew Whether this is a new asset being created
      */
-    public function onSaveAsset(Asset $asset)
+    public function onSaveAsset(Asset $asset, bool $isNew = false)
     {
         $url = $this->getImgixUrl($asset);
 
@@ -78,10 +80,16 @@ class ImgixService extends Component
         );
 
         if ($url) {
-            $job = new PurgeUrlsJob();
-            $job->urls = [$this->getImgixUrl($asset)];
+            // Only purge on updates, not on new assets
+            if (!$isNew) {
+                $job = new PurgeUrlsJob();
+                $job->urls = [$this->getImgixUrl($asset)];
 
-            Craft::$app->getQueue()->push($job);
+                Craft::$app->getQueue()->push($job);
+            }
+            
+            // Check if auto-generate is enabled for this asset (both new and updated)
+            $this->maybeGenerateTransforms($asset);
         }
     }
 
@@ -220,5 +228,89 @@ class ImgixService extends Component
         $url = UrlHelper::stripQueryString($builder->createURL($assetPath));
 
         return $url;
+    }
+
+    /**
+     * Check if auto-generate is enabled for the asset and queue transform generation
+     *
+     * @param Asset $asset
+     */
+    protected function maybeGenerateTransforms(Asset $asset): void
+    {
+        $autoGenerate = $this->settings->autoGenerate;
+        
+        // Check if auto-generate is disabled
+        if (!$autoGenerate) {
+            return;
+        }
+        
+        $volume = $asset->getVolume();
+        $volumeHandle = $volume->handle;
+        
+        // Check if auto-generate is enabled for this volume
+        // If autoGenerate is true (boolean), enable for all volumes
+        // If autoGenerate is an array, check if this volume is in the list
+        $isEnabled = false;
+        if (is_bool($autoGenerate) && $autoGenerate === true) {
+            $isEnabled = true;
+        } elseif (is_array($autoGenerate) && in_array($volumeHandle, $autoGenerate, true)) {
+            $isEnabled = true;
+        }
+        
+        if (!$isEnabled) {
+            return;
+        }
+        
+        // Get transform definitions
+        $transforms = $this->getTransformsForVolume($volumeHandle);
+        
+        if (empty($transforms)) {
+            return;
+        }
+        
+        // Queue the transform generation job
+        $job = new GenerateTransformsJob();
+        $job->assetId = $asset->id;
+        $job->transforms = $transforms;
+        
+        Craft::$app->getQueue()->push($job);
+        
+        Craft::trace(
+            Craft::t(
+                'imgix',
+                'Queued {count} transform(s) for asset #{id}',
+                ['count' => count($transforms), 'id' => $asset->id]
+            ),
+            'imgix'
+        );
+    }
+
+    /**
+     * Get transform definitions for a volume
+     *
+     * @param string $volumeHandle
+     * @return array
+     */
+    protected function getTransformsForVolume(string $volumeHandle): array
+    {
+        $transformsConfig = $this->settings->transforms;
+        
+        if (empty($transformsConfig)) {
+            return [];
+        }
+        
+        $transforms = [];
+        
+        // Add volume-specific transforms if they exist
+        if (isset($transformsConfig[$volumeHandle]) && is_array($transformsConfig[$volumeHandle])) {
+            $transforms = array_merge($transforms, $transformsConfig[$volumeHandle]);
+        }
+        
+        // Add global transforms if they exist
+        if (isset($transformsConfig['global']) && is_array($transformsConfig['global'])) {
+            $transforms = array_merge($transforms, $transformsConfig['global']);
+        }
+        
+        return $transforms;
     }
 }

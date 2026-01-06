@@ -149,6 +149,44 @@ If you need to prefix with something other than `data-`, you can set the configu
 
 Alternatively, you may use the native loading attribute `loading="lazy"` on your image tag as in this example: `{{ image.srcset({ loading: 'lazy' }) }}`.
 
+## Auto-generating Transforms on Upload
+
+You can configure the plugin to automatically generate transforms when assets are uploaded or updated. This is useful for warming the imgix cache and ensuring transforms are ready when needed.
+
+To enable this feature, add the following to your `config/imgix.php`:
+
+```php
+<?php
+return [
+    // ... other config options
+    
+    // Enable auto-generate for all volumes with imgix domains configured
+    'autoGenerate' => true,
+    
+    // OR enable only for specific volumes
+    'autoGenerate' => ['volumeHandle1', 'volumeHandle2'],
+    
+    // Define transforms to generate
+    'transforms' => [
+        // Global transforms applied to all volumes with autoGenerate enabled
+        'global' => [
+            ['width' => 400, 'height' => 300],
+            ['width' => 800, 'height' => 600],
+            ['width' => 1200],
+        ],
+        // Volume-specific transforms (these will be added to global transforms)
+        'volumeHandle' => [
+            ['width' => 400, 'height' => 300, 'fit' => 'crop'],
+            ['width' => 800, 'height' => 600, 'fit' => 'crop'],
+        ],
+    ],
+];
+```
+
+When an asset is uploaded or replaced, the plugin will automatically queue a job to generate the configured transforms. This happens asynchronously using Craft's queue system, so it won't slow down the upload process.
+
+**Note:** Since imgix is a URL-based image processing service, "generating" transforms simply means constructing the imgix URLs with the specified parameters. The actual image processing happens on imgix's servers when the URL is first requested. This feature helps warm the cache by making the URLs available immediately.
+
 ## Roadmap
 
 * Look into improving srcset/API

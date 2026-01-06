@@ -57,6 +57,22 @@ class Settings extends Model
      */
     public $lazyLoadPrefix = '';
 
+    /**
+     * Auto-generate transforms on asset upload/save
+     * Can be a boolean (true/false) or an array of volume handles
+     *
+     * @var bool|array
+     */
+    public $autoGenerate = false;
+
+    /**
+     * Transform definitions to generate automatically
+     * Can be defined globally or per volume handle
+     *
+     * @var array
+     */
+    public $transforms = [];
+
     public function getApiKey()
     {
         $apiKey = Craft::parseEnv($this->apiKey);
@@ -80,6 +96,9 @@ class Settings extends Model
             ['imgixSignedToken', 'default', 'value' => ''],
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
+            ['autoGenerate', 'default', 'value' => false],
+            ['transforms', 'array'],
+            ['transforms', 'default', 'value' => []],
         ];
     }
 }
