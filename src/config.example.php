@@ -14,6 +14,10 @@ return [
     'apiKey' => getenv('IMGIX_API_KEY') ?: '',
 
     // Map your Craft volume handles to imgix domains
+    // You can specify just the domain, or include a path prefix after the domain
+    // Examples:
+    //   'volumeHandle' => 'mysite.imgix.net'              - All assets served from root
+    //   'volumeHandle' => 'mysite.imgix.net/subfolder'   - All assets prefixed with /subfolder
     'imgixDomains' => [
         'images' => 'mysite.imgix.net',
         'userUploads' => 'mysite.imgix.net/uploads',

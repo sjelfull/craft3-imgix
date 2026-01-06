@@ -76,7 +76,7 @@ class GenerateTransformsJob extends BaseJob
         }
 
         for ($step = 0; $step < $totalSteps; ++$step) {
-            $this->setProgress($queue, $step / $totalSteps);
+            $this->setProgress($queue, ($step + 1) / $totalSteps);
             $transform = $this->transforms[$step];
 
             // Generate the imgix URL - this will cause imgix to create the transform on first request

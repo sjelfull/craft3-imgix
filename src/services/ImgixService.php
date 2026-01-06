@@ -246,12 +246,10 @@ class ImgixService extends Component
         $volumeHandle = $volume->handle;
         
         // Check if auto-generate is enabled for this volume
-        // If autoGenerate is true (boolean), enable for all volumes
-        // If autoGenerate is an array, check if this volume is in the list
-        $isEnabled = (is_bool($autoGenerate) && $autoGenerate) || 
-                     (is_array($autoGenerate) && in_array($volumeHandle, $autoGenerate, true));
+        $isEnabledForAllVolumes = is_bool($autoGenerate) && $autoGenerate;
+        $isEnabledForThisVolume = is_array($autoGenerate) && in_array($volumeHandle, $autoGenerate, true);
         
-        if (!$isEnabled) {
+        if (!$isEnabledForAllVolumes && !$isEnabledForThisVolume) {
             return;
         }
         
