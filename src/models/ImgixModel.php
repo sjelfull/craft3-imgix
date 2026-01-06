@@ -366,6 +366,12 @@ class ImgixModel extends Model
     {
         $parameters = $this->translateAttributes($transform);
 
+        // Apply fit=max to prevent upscaling if enabled and not already set
+        $preventUpscaling = Imgix::$plugin->getSettings()->preventUpscaling;
+        if ($preventUpscaling && !isset($parameters['fit'])) {
+            $parameters['fit'] = 'max';
+        }
+
         return $this->builder->createURL($filename, $parameters);
     }
 
