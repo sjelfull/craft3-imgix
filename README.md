@@ -1,9 +1,25 @@
 <!-- ix-docs-ignore -->
 # imgix plugin for Craft CMS 5.x
 
-Use imgix with Craft
+Use [imgix](https://imgix.com) with Craft CMS to automatically optimize, resize, and transform your images on-the-fly.
 
 ![Screenshot](resources/img/plugin-icon.png)
+
+## What does this plugin do?
+
+This plugin integrates imgix's powerful image processing API with Craft CMS, giving you instant access to real-time image transformations. Instead of generating and storing multiple versions of your images on your server, imgix handles all the heavy lifting in the cloud.
+
+**Key features:**
+
+- **On-demand image transformations** - Resize, crop, and optimize images dynamically via URL parameters
+- **Automatic format selection** - Serve WebP, AVIF, or other modern formats automatically based on browser support
+- **Responsive images made easy** - Generate perfect `srcset` attributes with minimal code
+- **Smart cropping** - Automatically use Craft's focal points for intelligent cropping
+- **Lazy loading support** - Built-in helpers for both JavaScript-based and native lazy loading
+- **Cache purging** - Automatically purge imgix's cache when you update assets in Craft
+- **Signed URLs** - Secure your images with signed URLs to prevent unauthorized transformations
+
+Perfect for high-traffic sites that need fast, optimized images without the server overhead.
 
 ---
 <!-- /ix-docs-ignore -->
