@@ -440,22 +440,23 @@ class ImgixModel extends Model
             unset($transform['h']);
         }
 
-        // If both sizes and ratio is specified, let ratio take control based on width
+        // Calculate dimensions based on ratio
         if ($w !== null && $h !== null) {
+            // If both sizes and ratio are specified, let ratio take control based on width
             $transform[$heightKey] = round($w / $ratio);
         }
+        elseif ($w !== null) {
+            // Calculate height from width and ratio
+            $transform[$heightKey] = round($w / $ratio);
+        }
+        elseif ($h !== null) {
+            // Calculate width from height and ratio
+            $transform[$widthKey] = round($h * $ratio);
+        }
         else {
-            if ($w !== null) {
-                $transform[$heightKey] = round($w / $ratio);
-            }
-            elseif ($h !== null) {
-                $transform[$widthKey] = round($h * $ratio);
-            }
-            else {
-                // TODO: log that neither w/width nor h/height is specified with ratio
-                // no idea what to do, return
-                return $transform;
-            }
+            // TODO: log that neither w/width nor h/height is specified with ratio
+            // no idea what to do, return
+            return $transform;
         }
 
         unset($transform['ratio']); // remove the ratio setting so that it doesn't gets processed in the URL
