@@ -13,6 +13,7 @@ namespace superbig\imgix\jobs;
 use Craft;
 use craft\queue\BaseJob;
 use craft\elements\Asset;
+use GuzzleHttp\Exception\GuzzleException;
 use superbig\imgix\Imgix;
 
 /**
@@ -157,8 +158,8 @@ class GenerateTransformsJob extends BaseJob
                         ),
                         'imgix'
                     );
-                } catch (\Exception $e) {
-                    // Silently fail - cache warming is optional
+                } catch (GuzzleException $e) {
+                    // Log but don't fail - cache warming is optional
                     Craft::warning(
                         Craft::t(
                             'imgix',

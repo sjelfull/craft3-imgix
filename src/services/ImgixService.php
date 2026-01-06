@@ -299,7 +299,7 @@ class ImgixService extends Component
             $transforms = array_merge($transforms, $transformsConfig['global']);
         }
         
-        // Add volume-specific transforms (these override/extend global)
+        // Add volume-specific transforms (these extend global transforms)
         if (isset($transformsConfig[$volumeHandle]) && is_array($transformsConfig[$volumeHandle])) {
             $transforms = array_merge($transforms, $transformsConfig[$volumeHandle]);
         }
