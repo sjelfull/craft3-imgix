@@ -166,6 +166,11 @@ return [
     // OR enable only for specific volumes
     'autoGenerate' => ['volumeHandle1', 'volumeHandle2'],
     
+    // Optional: Warm imgix cache by making HTTP requests
+    // Set to true to make HEAD requests to generated URLs
+    // Default: false (recommended - let imgix process on first user request)
+    'warmCache' => false,
+    
     // Define transforms to generate
     'transforms' => [
         // Global transforms applied to all volumes with autoGenerate enabled
@@ -185,7 +190,13 @@ return [
 
 When an asset is uploaded or replaced, the plugin will automatically queue a job to generate the configured transforms. This happens asynchronously using Craft's queue system, so it won't slow down the upload process.
 
-**Note:** Since imgix is a URL-based image processing service, "generating" transforms simply means constructing the imgix URLs with the specified parameters. The actual image processing happens on imgix's servers when the URL is first requested. This feature helps warm the cache by making the URLs available immediately.
+**Configuration Options:**
+
+- `autoGenerate`: Enable/disable auto-generation. Set to `true` to enable for all volumes, or provide an array of volume handles to enable selectively.
+- `warmCache`: When `true`, makes HTTP HEAD requests to imgix URLs to trigger immediate processing. Default is `false` (recommended).
+- `transforms`: Define transform configurations. Supports `global` transforms and volume-specific transforms.
+
+**Note:** Since imgix is a URL-based image processing service, "generating" transforms means constructing the imgix URLs with the specified parameters. The actual image processing happens on imgix's servers. When `warmCache` is disabled (recommended), imgix will process images on the first user request. When `warmCache` is enabled, the plugin makes HEAD requests to trigger processing immediately.
 
 ## Roadmap
 

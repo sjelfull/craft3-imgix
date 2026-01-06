@@ -272,6 +272,7 @@ class ImgixService extends Component
         $job = new GenerateTransformsJob();
         $job->assetId = $asset->id;
         $job->transforms = $transforms;
+        $job->warmCache = $this->settings->warmCache ?? false;
         
         Craft::$app->getQueue()->push($job);
         

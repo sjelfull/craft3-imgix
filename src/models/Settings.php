@@ -66,6 +66,13 @@ class Settings extends Model
     public $autoGenerate = false;
 
     /**
+     * Whether to warm imgix cache by making HTTP requests
+     *
+     * @var bool
+     */
+    public $warmCache = false;
+
+    /**
      * Transform definitions to generate automatically
      * Can be defined globally or per volume handle
      *
@@ -97,6 +104,8 @@ class Settings extends Model
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
             ['autoGenerate', 'default', 'value' => false],
+            ['warmCache', 'boolean'],
+            ['warmCache', 'default', 'value' => false],
             ['transforms', 'array'],
             ['transforms', 'default', 'value' => []],
         ];

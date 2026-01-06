@@ -42,6 +42,13 @@ class GenerateTransformsJob extends BaseJob
     public $transforms = [];
 
     /**
+     * Whether to warm the imgix cache by making HTTP requests
+     *
+     * @var bool
+     */
+    public $warmCache = false;
+
+    /**
      * @inheritdoc
      */
     public function execute($queue): void
@@ -64,8 +71,6 @@ class GenerateTransformsJob extends BaseJob
             if ($imgixModel) {
                 $url = $imgixModel->getUrl();
                 
-                // Optionally, we could make a HEAD request to warm the cache
-                // For now, just generating the URL is sufficient as imgix will create it on first access
                 Craft::trace(
                     Craft::t(
                         'imgix',
@@ -74,6 +79,33 @@ class GenerateTransformsJob extends BaseJob
                     ),
                     'imgix'
                 );
+                
+                // Optionally warm the cache by making a HEAD request
+                if ($this->warmCache && $url) {
+                    try {
+                        $client = Craft::createGuzzleClient(['timeout' => 10, 'connect_timeout' => 10]);
+                        $client->head($url);
+                        
+                        Craft::trace(
+                            Craft::t(
+                                'imgix',
+                                'Warmed cache for transform: {url}',
+                                ['url' => $url]
+                            ),
+                            'imgix'
+                        );
+                    } catch (\Exception $e) {
+                        // Silently fail - cache warming is optional
+                        Craft::warning(
+                            Craft::t(
+                                'imgix',
+                                'Failed to warm cache for {url}: {error}',
+                                ['url' => $url, 'error' => $e->getMessage()]
+                            ),
+                            'imgix'
+                        );
+                    }
+                }
             }
         }
     }

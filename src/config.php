@@ -45,6 +45,11 @@ return [
     // Set to true to enable for all volumes, or provide an array of volume handles
     'autoGenerate' => false,
 
+    // Whether to warm imgix cache by making HTTP requests for generated transforms
+    // This will make HEAD requests to imgix URLs to trigger image processing
+    // Recommended: false (imgix will process on first user request)
+    'warmCache' => false,
+
     // Transform definitions to generate automatically
     // Can be defined globally or per volume handle
     // Example:
