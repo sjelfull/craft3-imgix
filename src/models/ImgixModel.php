@@ -415,19 +415,23 @@ class ImgixModel extends Model
         }
 
         $ratio = (float)$transform['ratio'];
-        $w = isset($transform['w']) ? $transform['w'] : null;
-        $h = isset($transform['h']) ? $transform['h'] : null;
+        $w = isset($transform['w']) ? $transform['w'] : (isset($transform['width']) ? $transform['width'] : null);
+        $h = isset($transform['h']) ? $transform['h'] : (isset($transform['height']) ? $transform['height'] : null);
+
+        // Determine which keys to use for setting calculated values
+        $widthKey = isset($transform['w']) ? 'w' : 'width';
+        $heightKey = isset($transform['h']) ? 'h' : 'height';
 
         // If both sizes and ratio is specified, let ratio take control based on width
         if ($w and $h) {
-            $transform['h'] = round($w / $ratio);
+            $transform[$heightKey] = round($w / $ratio);
         }
         else {
             if ($w) {
-                $transform['h'] = round($w / $ratio);
+                $transform[$heightKey] = round($w / $ratio);
             }
             elseif ($h) {
-                $transform['w'] = round($h * $ratio);
+                $transform[$widthKey] = round($h * $ratio);
             }
             else {
                 // TODO: log that neither w nor h is specified with ratio
