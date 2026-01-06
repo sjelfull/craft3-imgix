@@ -45,6 +45,8 @@ Then map your Asset Source handle to your imgix domain, according to the example
 
 This plugin will lookup the Asset image's source handle, and figure out which imgix domain to use. If a URL string is passed, it will use the first domain in the config file.
 
+For a complete example with auto-generate transforms, see `src/config.example.php`.
+
 ```php
 <?php
    return [
