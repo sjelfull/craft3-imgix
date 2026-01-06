@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- Fixed duplicate PURGE requests against Imgix API in multisite setups by only purging on the main save/delete operation, not during propagation to other sites
+
 ## [4.0.0] - 2025-08-06
 
 ### Added 
