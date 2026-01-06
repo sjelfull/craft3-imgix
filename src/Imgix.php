@@ -92,7 +92,7 @@ class Imgix extends Plugin
             Assets::EVENT_BEFORE_REPLACE_ASSET,
             static function (ReplaceAssetEvent $event) : void {
                 $element = $event->asset;
-                Imgix::$plugin->imgixService->onSaveAsset($element);
+                Imgix::$plugin->imgixService->onSaveAsset($element, false);
             }
         );
 

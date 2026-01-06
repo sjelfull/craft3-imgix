@@ -24,6 +24,24 @@ use superbig\imgix\Imgix;
  */
 class GenerateTransformsJob extends BaseJob
 {
+    // Constants
+    // =========================================================================
+    
+    /**
+     * HTTP request timeout in seconds for cache warming
+     */
+    const CACHE_WARM_TIMEOUT = 10;
+    
+    /**
+     * Maximum number of transforms before throttling progress updates
+     */
+    const PROGRESS_UPDATE_THRESHOLD = 10;
+    
+    /**
+     * Progress update frequency (every N transforms)
+     */
+    const PROGRESS_UPDATE_FREQUENCY = 5;
+    
     // Public Properties
     // =========================================================================
 
@@ -72,12 +90,17 @@ class GenerateTransformsJob extends BaseJob
         // Create Guzzle client once if cache warming is enabled
         $client = null;
         if ($this->warmCache) {
-            $client = Craft::createGuzzleClient(['timeout' => 10, 'connect_timeout' => 10]);
+            $client = Craft::createGuzzleClient([
+                'timeout' => self::CACHE_WARM_TIMEOUT,
+                'connect_timeout' => self::CACHE_WARM_TIMEOUT,
+            ]);
         }
 
         for ($step = 0; $step < $totalSteps; ++$step) {
             // Update progress - use modulo to reduce frequency for large transform sets
-            if ($totalSteps <= 10 || $step % 5 === 0 || $step === $totalSteps - 1) {
+            if ($totalSteps <= self::PROGRESS_UPDATE_THRESHOLD || 
+                $step % self::PROGRESS_UPDATE_FREQUENCY === 0 || 
+                $step === $totalSteps - 1) {
                 $this->setProgress($queue, ($step + 1) / $totalSteps);
             }
             
