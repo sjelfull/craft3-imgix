@@ -422,8 +422,10 @@ class ImgixModel extends Model
         $h = $transform['h'] ?? $transform['height'] ?? null;
 
         // Determine which keys to use for setting calculated values
-        $widthKey = isset($transform['w']) ? 'w' : 'width';
-        $heightKey = isset($transform['h']) ? 'h' : 'height';
+        // Use the short form (w/h) if either dimension uses short form, otherwise use long form (width/height)
+        $useShortForm = isset($transform['w']) || isset($transform['h']);
+        $widthKey = $useShortForm ? 'w' : 'width';
+        $heightKey = $useShortForm ? 'h' : 'height';
 
         // If both sizes and ratio is specified, let ratio take control based on width
         if ($w and $h) {
