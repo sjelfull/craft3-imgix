@@ -434,7 +434,7 @@ class ImgixModel extends Model
                 $transform[$widthKey] = round($h * $ratio);
             }
             else {
-                // TODO: log that neither w nor h is specified with ratio
+                // TODO: log that neither w/width nor h/height is specified with ratio
                 // no idea what to do, return
                 return $transform;
             }
