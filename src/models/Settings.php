@@ -59,6 +59,20 @@ class Settings extends Model
     public $lazyLoadPrefix = '';
 
     /**
+     * Prevent upscaling images beyond their original size
+     *
+     * @var bool
+     */
+    public $preventUpscaling = false;
+
+    /**
+     * Named transforms - reusable transform definitions
+     *
+     * @var array
+     */
+    public $namedTransforms = [];
+
+    /**
      * Auto-generate transforms on asset upload/save
      * Can be a boolean (true/false) or an array of volume handles
      *
@@ -76,17 +90,11 @@ class Settings extends Model
     /**
      * Transform definitions to generate automatically
      * Can be defined globally or per volume handle
+     * Supports both full transform definitions and named transform references
      *
      * @var array
      */
     public $transforms = [];
-
-    /**
-     * Prevent upscaling images beyond their original size
-     *
-     * @var bool
-     */
-    public $preventUpscaling = false;
 
     public function getApiKey()
     {
@@ -165,6 +173,10 @@ class Settings extends Model
             ['imgixSignedToken', 'default', 'value' => ''],
             ['lazyLoadPrefix', 'string'],
             ['lazyLoadPrefix', 'default', 'value' => ''],
+            ['preventUpscaling', 'boolean'],
+            ['preventUpscaling', 'default', 'value' => false],
+            ['namedTransforms', 'array'],
+            ['namedTransforms', 'default', 'value' => []],
             [
                 'autoGenerate',
                 'validateAutoGenerate',
@@ -174,9 +186,18 @@ class Settings extends Model
             ['warmCache', 'default', 'value' => false],
             ['transforms', 'array'],
             ['transforms', 'default', 'value' => []],
-            ['preventUpscaling', 'boolean'],
-            ['preventUpscaling', 'default', 'value' => false],
         ];
+    }
+
+    /**
+     * Get a named transform by name
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getNamedTransform(string $name): ?array
+    {
+        return $this->namedTransforms[$name] ?? null;
     }
 
     /**

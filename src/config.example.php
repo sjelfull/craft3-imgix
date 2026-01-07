@@ -31,6 +31,32 @@ return [
     // Use 'data-' for lazy loading libraries like lazysizes
     'lazyLoadPrefix' => '',
 
+    // === Named Transforms ===
+    
+    // Define reusable named transforms (similar to Imager-X)
+    // These can be referenced by name in the transforms configuration
+    'namedTransforms' => [
+        // Thumbnails
+        'thumbnail' => ['width' => 200, 'height' => 200, 'fit' => 'crop'],
+        'thumbnail_large' => ['width' => 400, 'height' => 400, 'fit' => 'crop'],
+        
+        // Hero images
+        'hero' => ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
+        'hero_mobile' => ['width' => 768, 'height' => 1024, 'fit' => 'crop'],
+        
+        // Content images
+        'content_small' => ['width' => 400, 'fit' => 'max'],
+        'content_medium' => ['width' => 800, 'fit' => 'max'],
+        'content_large' => ['width' => 1200, 'fit' => 'max'],
+        
+        // Portrait
+        'portrait' => ['width' => 600, 'height' => 800, 'fit' => 'crop'],
+        
+        // Profile pictures
+        'profile' => ['width' => 150, 'height' => 150, 'fit' => 'crop', 'crop' => 'faces'],
+        'profile_large' => ['width' => 300, 'height' => 300, 'fit' => 'crop', 'crop' => 'faces'],
+    ],
+
     // === Auto-Generate Transforms Configuration ===
 
     // Enable auto-generate for specific volumes
@@ -46,32 +72,42 @@ return [
     'warmCache' => false,
 
     // Transform definitions to generate automatically
+    // Supports both full transform definitions and named transform references
     'transforms' => [
         // Global transforms applied to all volumes with autoGenerate enabled
         'global' => [
-            // Responsive thumbnail sizes
-            ['width' => 400, 'height' => 300, 'fit' => 'crop'],
-            ['width' => 800, 'height' => 600, 'fit' => 'crop'],
+            // Using named transforms (quick syntax)
+            'thumbnail',
+            'thumbnail_large',
+            'content_small',
+            'content_medium',
+            'content_large',
             
-            // Hero image sizes
+            // Or define transforms inline
             ['width' => 1200, 'height' => 675, 'fit' => 'crop'],
             ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
-            
-            // Portrait orientation
-            ['width' => 600, 'height' => 800, 'fit' => 'crop'],
         ],
         
         // Volume-specific transforms (merged with global)
         'images' => [
-            // Additional transforms for the 'images' volume
+            // Additional named transforms for the 'images' volume
+            'hero',
+            'hero_mobile',
+            'portrait',
+            
+            // Additional inline transforms
             ['width' => 300, 'height' => 300, 'fit' => 'crop', 'crop' => 'faces'],
-            ['width' => 150, 'height' => 150, 'fit' => 'crop', 'crop' => 'faces'],
         ],
         
         'userUploads' => [
             // Specific transforms for user uploads
+            'profile',
+            'profile_large',
             ['width' => 500, 'fit' => 'max'],
             ['width' => 1000, 'fit' => 'max'],
         ],
     ],
+
+    // Prevent upscaling images beyond their original size
+    'preventUpscaling' => false,
 ];

@@ -47,6 +47,16 @@ class Imgix extends Plugin
     public static $plugin;
 
     /**
+     * @var string
+     */
+    public string $schemaVersion = '4.0.0';
+
+    /**
+     * @var bool
+     */
+    public bool $hasCpSettings = false;
+
+    /**
      * @inheritdoc
      */
     public function init(): void
@@ -113,5 +123,17 @@ class Imgix extends Plugin
     protected function createSettingsModel(): \superbig\imgix\models\Settings
     {
         return new Settings();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function controllerNamespace($isConsole = false): string
+    {
+        if ($isConsole) {
+            return 'superbig\\imgix\\console\\controllers';
+        }
+        
+        return 'superbig\\imgix\\controllers';
     }
 }

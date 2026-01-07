@@ -57,8 +57,19 @@ return [
     // Recommended: false (imgix will process on first user request)
     'warmCache' => false,
 
+    // Named transforms - reusable transform definitions
+    // Similar to Imager-X named transforms
+    // Example:
+    // 'namedTransforms' => [
+    //     'thumbnail' => ['width' => 200, 'height' => 200, 'fit' => 'crop'],
+    //     'hero' => ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
+    //     'portrait' => ['width' => 600, 'height' => 800, 'fit' => 'crop'],
+    // ]
+    'namedTransforms' => [],
+
     // Transform definitions to generate automatically
     // Can be defined globally or per volume handle
+    // Supports both full transform definitions and named transform references
     // Example:
     // 'transforms' => [
     //     // Global transforms applied to all volumes with autoGenerate enabled
@@ -66,11 +77,13 @@ return [
     //         ['width' => 400, 'height' => 300],
     //         ['width' => 800, 'height' => 600],
     //         ['width' => 1200],
+    //         'thumbnail',  // Reference to named transform
+    //         'hero',       // Reference to named transform
     //     ],
     //     // Volume-specific transforms
     //     'volumeHandle' => [
     //         ['width' => 400, 'height' => 300, 'fit' => 'crop'],
-    //         ['width' => 800, 'height' => 600, 'fit' => 'crop'],
+    //         'portrait',  // Reference to named transform
     //     ],
     // ]
     'transforms' => [],

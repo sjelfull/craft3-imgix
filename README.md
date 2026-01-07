@@ -690,12 +690,39 @@ If you need to override this behavior for specific transformations, you can expl
 
 You can configure the plugin to automatically generate transforms when assets are uploaded or updated. This is useful for warming the imgix cache and ensuring transforms are ready when needed.
 
+### Named Transforms
+
+Similar to Imager-X, you can define reusable named transforms that can be referenced throughout your configuration:
+
+```php
+<?php
+return [
+    // ... other config options
+    
+    // Define named transforms
+    'namedTransforms' => [
+        'thumbnail' => ['width' => 200, 'height' => 200, 'fit' => 'crop'],
+        'hero' => ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
+        'profile' => ['width' => 150, 'height' => 150, 'fit' => 'crop', 'crop' => 'faces'],
+    ],
+];
+```
+
+### Auto-Generate Configuration
+
 To enable this feature, add the following to your `config/imgix.php`:
 
 ```php
 <?php
 return [
     // ... other config options
+    
+    // Define named transforms (optional but recommended)
+    'namedTransforms' => [
+        'thumbnail' => ['width' => 200, 'height' => 200, 'fit' => 'crop'],
+        'hero' => ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
+        'content_medium' => ['width' => 800, 'fit' => 'max'],
+    ],
     
     // Enable auto-generate for all volumes with imgix domains configured
     'autoGenerate' => true,
@@ -708,18 +735,22 @@ return [
     // Default: false (recommended - let imgix process on first user request)
     'warmCache' => false,
     
-    // Define transforms to generate
+    // Define transforms to generate (supports quick syntax with named transforms)
     'transforms' => [
         // Global transforms applied to all volumes with autoGenerate enabled
         'global' => [
-            ['width' => 400, 'height' => 300],
-            ['width' => 800, 'height' => 600],
+            // Quick syntax using named transforms
+            'thumbnail',
+            'hero',
+            'content_medium',
+            
+            // Or define transforms inline
             ['width' => 1200],
         ],
         // Volume-specific transforms (added after global transforms)
         'volumeHandle' => [
+            'profile',  // Reference to named transform
             ['width' => 400, 'height' => 300, 'fit' => 'crop'],
-            ['width' => 800, 'height' => 600, 'fit' => 'crop'],
         ],
     ],
 ];
@@ -729,11 +760,57 @@ When an asset is uploaded or replaced, the plugin will automatically queue a job
 
 **Configuration Options:**
 
+- `namedTransforms`: Array of reusable named transform definitions
 - `autoGenerate`: Enable/disable auto-generation. Set to `true` to enable for all volumes, or provide an array of volume handles to enable selectively.
 - `warmCache`: When `true`, makes HTTP HEAD requests to imgix URLs to trigger immediate processing. Default is `false` (recommended).
-- `transforms`: Define transform configurations. Supports `global` transforms (applied first) and volume-specific transforms (added after global).
+- `transforms`: Define transform configurations. Supports both quick syntax (named transform strings) and inline transform definitions. Can define `global` transforms and volume-specific transforms.
 
 **Note:** Since imgix is a URL-based image processing service, "generating" transforms means constructing the imgix URLs with the specified parameters. The actual image processing happens on imgix's servers. When `warmCache` is disabled (recommended), imgix will process images on the first user request. When `warmCache` is enabled, the plugin makes HEAD requests to trigger processing immediately.
+
+### CLI Commands
+
+You can also manually generate transforms for existing assets using CLI commands:
+
+#### Generate transforms for all assets
+
+```bash
+php craft imgix/generate
+```
+
+Options:
+- `--volume=volumeHandle` - Limit to a specific volume
+- `--limit=100` - Limit the number of assets to process
+- `--warmCache` - Enable cache warming for this run
+
+Examples:
+```bash
+# Generate transforms for all assets in the 'images' volume
+php craft imgix/generate --volume=images
+
+# Generate transforms for 50 assets with cache warming
+php craft imgix/generate --limit=50 --warmCache
+```
+
+#### Generate transforms for a specific asset
+
+```bash
+php craft imgix/generate/asset <assetId>
+```
+
+You can also specify which named transforms to generate:
+
+```bash
+# Generate specific named transforms
+php craft imgix/generate/asset 123 thumbnail,hero,profile
+
+# Generate all configured transforms for the asset's volume
+php craft imgix/generate/asset 123 all
+```
+
+Options:
+- `--warmCache` - Enable cache warming for this run
+
+The CLI commands will queue jobs to Craft's queue system. Run `php craft queue/run` to process them immediately, or they will be processed automatically by Craft's queue runner.
 
 ## Roadmap
 

@@ -277,6 +277,17 @@ class ImgixService extends Component
     }
 
     /**
+     * Get transform definitions for a volume (public method for CLI)
+     *
+     * @param string $volumeHandle
+     * @return array
+     */
+    public function getTransformsForVolumePublic(string $volumeHandle): array
+    {
+        return $this->getTransformsForVolume($volumeHandle);
+    }
+
+    /**
      * Get transform definitions for a volume
      *
      * @param string $volumeHandle
@@ -294,14 +305,49 @@ class ImgixService extends Component
         
         // Add global transforms first (can be overridden by volume-specific)
         if (isset($transformsConfig['global']) && is_array($transformsConfig['global'])) {
-            $transforms = array_merge($transforms, $transformsConfig['global']);
+            $transforms = array_merge($transforms, $this->resolveNamedTransforms($transformsConfig['global']));
         }
         
         // Add volume-specific transforms (these extend global transforms)
         if (isset($transformsConfig[$volumeHandle]) && is_array($transformsConfig[$volumeHandle])) {
-            $transforms = array_merge($transforms, $transformsConfig[$volumeHandle]);
+            $transforms = array_merge($transforms, $this->resolveNamedTransforms($transformsConfig[$volumeHandle]));
         }
         
         return $transforms;
+    }
+
+    /**
+     * Resolve named transform references to their definitions
+     *
+     * @param array $transforms Array of transform definitions and/or named transform strings
+     * @return array Array of resolved transform definitions
+     */
+    protected function resolveNamedTransforms(array $transforms): array
+    {
+        $resolved = [];
+        
+        foreach ($transforms as $transform) {
+            // If it's a string, it's a named transform reference
+            if (is_string($transform)) {
+                $namedTransform = $this->settings->getNamedTransform($transform);
+                if ($namedTransform) {
+                    $resolved[] = $namedTransform;
+                } else {
+                    Craft::warning(
+                        Craft::t(
+                            'imgix',
+                            'Named transform "{name}" not found',
+                            ['name' => $transform]
+                        ),
+                        'imgix'
+                    );
+                }
+            } else {
+                // It's already a transform definition array
+                $resolved[] = $transform;
+            }
+        }
+        
+        return $resolved;
     }
 }
