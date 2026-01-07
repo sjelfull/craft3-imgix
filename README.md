@@ -74,6 +74,8 @@ Copy the `config.php` file from the plugin's `src` directory into your Craft pro
 
 **Basic configuration example:**
 
+For a complete example with auto-generate transforms, see `src/config.example.php`.
+
 ```php
 <?php
 return [
@@ -683,6 +685,132 @@ If you need to override this behavior for specific transformations, you can expl
 2. Ensure `.env` files are properly configured for each environment
 3. Check that volume handles are consistent across environments
 4. Verify Imgix sources are configured for both development and production URLs
+
+## Auto-generating Transforms on Upload
+
+You can configure the plugin to automatically generate transforms when assets are uploaded or updated. This is useful for warming the imgix cache and ensuring transforms are ready when needed.
+
+### Named Transforms
+
+Similar to Imager-X, you can define reusable named transforms that can be referenced throughout your configuration:
+
+```php
+<?php
+return [
+    // ... other config options
+    
+    // Define named transforms
+    'namedTransforms' => [
+        'thumbnail' => ['width' => 200, 'height' => 200, 'fit' => 'crop'],
+        'hero' => ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
+        'profile' => ['width' => 150, 'height' => 150, 'fit' => 'crop', 'crop' => 'faces'],
+    ],
+];
+```
+
+### Auto-Generate Configuration
+
+To enable this feature, add the following to your `config/imgix.php`:
+
+```php
+<?php
+return [
+    // ... other config options
+    
+    // Define named transforms (optional but recommended)
+    'namedTransforms' => [
+        'thumbnail' => ['width' => 200, 'height' => 200, 'fit' => 'crop'],
+        'hero' => ['width' => 1920, 'height' => 1080, 'fit' => 'crop'],
+        'content_medium' => ['width' => 800, 'fit' => 'max'],
+    ],
+    
+    // Enable auto-generate for all volumes with imgix domains configured
+    'autoGenerate' => true,
+    
+    // OR enable only for specific volumes
+    'autoGenerate' => ['volumeHandle1', 'volumeHandle2'],
+    
+    // Optional: Warm imgix cache by making HTTP requests
+    // Set to true to make HEAD requests to generated URLs
+    // Default: false (recommended - let imgix process on first user request)
+    'warmCache' => false,
+    
+    // Define transforms to generate (supports quick syntax with named transforms)
+    'transforms' => [
+        // Global transforms applied to all volumes with autoGenerate enabled
+        'global' => [
+            // Quick syntax using named transforms
+            'thumbnail',
+            'hero',
+            'content_medium',
+            
+            // Or define transforms inline
+            ['width' => 1200],
+        ],
+        // Volume-specific transforms (added after global transforms)
+        'volumeHandle' => [
+            'profile',  // Reference to named transform
+            ['width' => 400, 'height' => 300, 'fit' => 'crop'],
+        ],
+    ],
+];
+```
+
+When an asset is uploaded or replaced, the plugin will automatically queue a job to generate the configured transforms. This happens asynchronously using Craft's queue system, so it won't slow down the upload process.
+
+**Configuration Options:**
+
+- `namedTransforms`: Array of reusable named transform definitions
+- `autoGenerate`: Enable/disable auto-generation. Set to `true` to enable for all volumes, or provide an array of volume handles to enable selectively.
+- `warmCache`: When `true`, makes HTTP HEAD requests to imgix URLs to trigger immediate processing. Default is `false` (recommended).
+- `transforms`: Define transform configurations. Supports both quick syntax (named transform strings) and inline transform definitions. Can define `global` transforms and volume-specific transforms.
+
+**Note:** Since imgix is a URL-based image processing service, "generating" transforms means constructing the imgix URLs with the specified parameters. The actual image processing happens on imgix's servers. When `warmCache` is disabled (recommended), imgix will process images on the first user request. When `warmCache` is enabled, the plugin makes HEAD requests to trigger processing immediately.
+
+### CLI Commands
+
+You can also manually generate transforms for existing assets using CLI commands:
+
+#### Generate transforms for all assets
+
+```bash
+php craft imgix/generate
+```
+
+Options:
+- `--volume=volumeHandle` - Limit to a specific volume
+- `--limit=100` - Limit the number of assets to process
+- `--warmCache` - Enable cache warming for this run
+
+Examples:
+```bash
+# Generate transforms for all assets in the 'images' volume
+php craft imgix/generate --volume=images
+
+# Generate transforms for 50 assets with cache warming
+php craft imgix/generate --limit=50 --warmCache
+```
+
+#### Generate transforms for a specific asset
+
+```bash
+php craft imgix/generate/asset <assetId>
+```
+
+You can also specify which named transforms to generate:
+
+```bash
+# Generate specific named transforms
+php craft imgix/generate/asset 123 thumbnail,hero,profile
+
+# Generate all configured transforms for the asset's volume
+php craft imgix/generate/asset 123 all
+```
+
+Options:
+- `--warmCache` - Enable cache warming for this run
+
+The CLI commands will queue jobs to Craft's queue system. Run `php craft queue/run` to process them immediately, or they will be processed automatically by Craft's queue runner.
 
 ## Roadmap
 

@@ -47,6 +47,16 @@ class Imgix extends Plugin
     public static $plugin;
 
     /**
+     * @var string
+     */
+    public string $schemaVersion = '4.0.0';
+
+    /**
+     * @var bool
+     */
+    public bool $hasCpSettings = false;
+
+    /**
      * @inheritdoc
      */
     public function init(): void
@@ -70,9 +80,9 @@ class Imgix extends Plugin
             static function (ElementEvent $event) : void {
                 $element = $event->element;
                 $isNewElement = $event->isNew;
-                // Only purge on the main save, not when propagating to other sites
-                if ($element instanceof Asset && !$isNewElement && !$element->propagating) {
-                    Imgix::$plugin->imgixService->onSaveAsset($element);
+                // Only process on the main save, not when propagating to other sites
+                if ($element instanceof Asset && !$element->propagating) {
+                    Imgix::$plugin->imgixService->onSaveAsset($element, $isNewElement);
                 }
             }
         );
@@ -94,7 +104,7 @@ class Imgix extends Plugin
             Assets::EVENT_BEFORE_REPLACE_ASSET,
             static function (ReplaceAssetEvent $event) : void {
                 $element = $event->asset;
-                Imgix::$plugin->imgixService->onSaveAsset($element);
+                Imgix::$plugin->imgixService->onSaveAsset($element, false);
             }
         );
 
@@ -113,5 +123,17 @@ class Imgix extends Plugin
     protected function createSettingsModel(): \superbig\imgix\models\Settings
     {
         return new Settings();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function controllerNamespace($isConsole = false): string
+    {
+        if ($isConsole) {
+            return 'superbig\\imgix\\console\\controllers';
+        }
+        
+        return 'superbig\\imgix\\controllers';
     }
 }

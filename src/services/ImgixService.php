@@ -18,6 +18,7 @@ use GuzzleHttp\Exception\RequestException;
 
 use Imgix\UrlBuilder;
 use superbig\imgix\Imgix;
+use superbig\imgix\jobs\GenerateTransformsJob;
 use superbig\imgix\jobs\PurgeUrlsJob;
 use superbig\imgix\models\ImgixModel;
 use superbig\imgix\models\Settings;
@@ -67,8 +68,9 @@ class ImgixService extends Component
 
     /**
      * @param Asset $asset
+     * @param bool $isNew Whether this is a new asset being created
      */
-    public function onSaveAsset(Asset $asset)
+    public function onSaveAsset(Asset $asset, bool $isNew = false)
     {
         $url = $this->getImgixUrl($asset);
 
@@ -77,12 +79,16 @@ class ImgixService extends Component
             __METHOD__
         );
 
-        if ($url) {
+        // Only purge on updates, not on new assets
+        if ($url && !$isNew) {
             $job = new PurgeUrlsJob();
             $job->urls = [$this->getImgixUrl($asset)];
 
             Craft::$app->getQueue()->push($job);
         }
+        
+        // Check if auto-generate is enabled for this asset (both new and updated)
+        $this->maybeGenerateTransforms($asset);
     }
 
     /**
@@ -218,5 +224,130 @@ class ImgixService extends Component
         $url = UrlHelper::stripQueryString($builder->createURL($assetPath));
 
         return $url;
+    }
+
+    /**
+     * Check if auto-generate is enabled for the asset and queue transform generation
+     *
+     * @param Asset $asset
+     */
+    protected function maybeGenerateTransforms(Asset $asset): void
+    {
+        $autoGenerate = $this->settings->autoGenerate;
+        
+        // Check if auto-generate is disabled
+        if (!$autoGenerate) {
+            return;
+        }
+        
+        $volume = $asset->getVolume();
+        $volumeHandle = $volume->handle;
+        
+        // Check if auto-generate is enabled for this volume
+        $isEnabledForAllVolumes = is_bool($autoGenerate) && $autoGenerate;
+        $isEnabledForThisVolume = is_array($autoGenerate) && in_array($volumeHandle, $autoGenerate, true);
+        
+        if (!$isEnabledForAllVolumes && !$isEnabledForThisVolume) {
+            return;
+        }
+        
+        // Get transform definitions
+        $transforms = $this->getTransformsForVolume($volumeHandle);
+        
+        if (empty($transforms)) {
+            return;
+        }
+        
+        // Queue the transform generation job
+        $job = new GenerateTransformsJob();
+        $job->assetId = $asset->id;
+        $job->transforms = $transforms;
+        $job->warmCache = $this->settings->warmCache ?? false;
+        
+        Craft::$app->getQueue()->push($job);
+        
+        Craft::trace(
+            Craft::t(
+                'imgix',
+                'Queued {count} transform(s) for asset #{id}',
+                ['count' => count($transforms), 'id' => $asset->id]
+            ),
+            'imgix'
+        );
+    }
+
+    /**
+     * Get transform definitions for a volume (public method for CLI)
+     *
+     * @param string $volumeHandle
+     * @return array
+     */
+    public function getTransformsForVolumePublic(string $volumeHandle): array
+    {
+        return $this->getTransformsForVolume($volumeHandle);
+    }
+
+    /**
+     * Get transform definitions for a volume
+     *
+     * @param string $volumeHandle
+     * @return array
+     */
+    protected function getTransformsForVolume(string $volumeHandle): array
+    {
+        $transformsConfig = $this->settings->transforms;
+        
+        if (empty($transformsConfig)) {
+            return [];
+        }
+        
+        $transforms = [];
+        
+        // Add global transforms first (can be overridden by volume-specific)
+        if (isset($transformsConfig['global']) && is_array($transformsConfig['global'])) {
+            $transforms = array_merge($transforms, $this->resolveNamedTransforms($transformsConfig['global']));
+        }
+        
+        // Add volume-specific transforms (these extend global transforms)
+        if (isset($transformsConfig[$volumeHandle]) && is_array($transformsConfig[$volumeHandle])) {
+            $transforms = array_merge($transforms, $this->resolveNamedTransforms($transformsConfig[$volumeHandle]));
+        }
+        
+        return $transforms;
+    }
+
+    /**
+     * Resolve named transform references to their definitions
+     *
+     * @param array $transforms Array of transform definitions and/or named transform strings
+     * @return array Array of resolved transform definitions
+     */
+    protected function resolveNamedTransforms(array $transforms): array
+    {
+        $resolved = [];
+        
+        foreach ($transforms as $transform) {
+            // If it's a string, it's a named transform reference
+            if (is_string($transform)) {
+                $namedTransform = $this->settings->getNamedTransform($transform);
+                if ($namedTransform) {
+                    $resolved[] = $namedTransform;
+                } else {
+                    Craft::warning(
+                        Craft::t(
+                            'imgix',
+                            'Named transform "{name}" not found',
+                            ['name' => $transform]
+                        ),
+                        'imgix'
+                    );
+                }
+            } else {
+                // It's already a transform definition array
+                $resolved[] = $transform;
+            }
+        }
+        
+        return $resolved;
     }
 }

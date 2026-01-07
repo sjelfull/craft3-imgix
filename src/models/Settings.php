@@ -65,6 +65,37 @@ class Settings extends Model
      */
     public $preventUpscaling = false;
 
+    /**
+     * Named transforms - reusable transform definitions
+     *
+     * @var array
+     */
+    public $namedTransforms = [];
+
+    /**
+     * Auto-generate transforms on asset upload/save
+     * Can be a boolean (true/false) or an array of volume handles
+     *
+     * @var bool|array
+     */
+    public $autoGenerate = false;
+
+    /**
+     * Whether to warm imgix cache by making HTTP requests
+     *
+     * @var bool
+     */
+    public $warmCache = false;
+
+    /**
+     * Transform definitions to generate automatically
+     * Can be defined globally or per volume handle
+     * Supports both full transform definitions and named transform references
+     *
+     * @var array
+     */
+    public $transforms = [];
+
     public function getApiKey()
     {
         $apiKey = Craft::parseEnv($this->apiKey);
@@ -144,6 +175,53 @@ class Settings extends Model
             ['lazyLoadPrefix', 'default', 'value' => ''],
             ['preventUpscaling', 'boolean'],
             ['preventUpscaling', 'default', 'value' => false],
+            ['namedTransforms', 'array'],
+            ['namedTransforms', 'default', 'value' => []],
+            [
+                'autoGenerate',
+                'validateAutoGenerate',
+            ],
+            ['autoGenerate', 'default', 'value' => false],
+            ['warmCache', 'boolean'],
+            ['warmCache', 'default', 'value' => false],
+            ['transforms', 'array'],
+            ['transforms', 'default', 'value' => []],
         ];
+    }
+
+    /**
+     * Get a named transform by name
+     *
+     * @param string $name
+     * @return array|null
+     */
+    public function getNamedTransform(string $name): ?array
+    {
+        return $this->namedTransforms[$name] ?? null;
+    }
+
+    /**
+     * Validates the autoGenerate property
+     *
+     * @param string $attribute
+     */
+    public function validateAutoGenerate(string $attribute): void
+    {
+        $value = $this->$attribute;
+        
+        // Must be either a boolean or an array
+        if (!is_bool($value) && !is_array($value)) {
+            $this->addError($attribute, Craft::t('imgix', 'Auto-generate must be either a boolean or an array of volume handles.'));
+        }
+        
+        // If it's an array, all values must be strings
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                if (!is_string($item)) {
+                    $this->addError($attribute, Craft::t('imgix', 'Auto-generate array must contain only volume handle strings.'));
+                    break;
+                }
+            }
+        }
     }
 }
