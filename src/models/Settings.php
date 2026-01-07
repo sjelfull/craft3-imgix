@@ -80,6 +80,8 @@ class Settings extends Model
      * @var array
      */
     public $transforms = [];
+
+    /**
      * Prevent upscaling images beyond their original size
      *
      * @var bool

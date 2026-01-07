@@ -70,9 +70,9 @@ class Imgix extends Plugin
             static function (ElementEvent $event) : void {
                 $element = $event->element;
                 $isNewElement = $event->isNew;
-                // Only purge on the main save, not when propagating to other sites
-                if ($element instanceof Asset && !$isNewElement && !$element->propagating) {
-                    Imgix::$plugin->imgixService->onSaveAsset($element);
+                // Only process on the main save, not when propagating to other sites
+                if ($element instanceof Asset && !$element->propagating) {
+                    Imgix::$plugin->imgixService->onSaveAsset($element, $isNewElement);
                 }
             }
         );
