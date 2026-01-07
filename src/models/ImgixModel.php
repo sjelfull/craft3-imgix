@@ -162,30 +162,30 @@ class ImgixModel extends Model
             $source = $image->getVolume();
             $sourceHandle = $source->handle;
             $focalPoint = $image->getFocalPoint();
-            $domains = Imgix::$plugin->getSettings()->imgixDomains;
-            $domain = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
-            $domainParts = [];
+            
+            $domainConfig = Imgix::$plugin->getSettings()->getDomainConfig($sourceHandle);
 
-            if ($domain === null) {
+            if ($domainConfig === null) {
                 // Domain isn't in imgixDomains, just passthrough the image
                 $this->transformed = $image;
 
                 return;
             }
 
-            $domainParts = explode('/', $domain, 2);
-            $domain = $domainParts[0];
+            $domain = $domainConfig['domain'];
+            $signingToken = $domainConfig['signingToken'];
+            $pathPrefix = $domainConfig['path'];
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
-                $this->builder->setSignKey($token);
+            if ($signingToken) {
+                $this->builder->setSignKey($signingToken);
             }
 
             $imagePath = '';
-            if (count($domainParts) === 2) {
-                $imagePath = rtrim($domainParts[1], '/') . '/';
+            if (!empty($pathPrefix)) {
+                $imagePath = $pathPrefix . '/';
             }
             $imagePath .= $image->getPath();
 
@@ -206,24 +206,32 @@ class ImgixModel extends Model
 
         if (gettype($image) === 'string') {
             $domains = Imgix::$plugin->getSettings()->imgixDomains;
-            $firstHandle = reset($domains);
-            $domain = $domains[ $firstHandle ];
-            $domainParts = [];
-            if ($domain !== null) {
-                $domainParts = explode('/', $domain, 2);
-                $domain = $domainParts[0];
+            $firstHandle = array_key_first($domains);
+            
+            if ($firstHandle === null) {
+                throw new Exception(Craft::t('imgix', 'No imgix domains configured.'));
             }
+
+            $domainConfig = Imgix::$plugin->getSettings()->getDomainConfig($firstHandle);
+            
+            if ($domainConfig === null) {
+                throw new Exception(Craft::t('imgix', 'Unable to get domain configuration.'));
+            }
+
+            $domain = $domainConfig['domain'];
+            $signingToken = $domainConfig['signingToken'];
+            $pathPrefix = $domainConfig['path'];
 
             $this->builder = new UrlBuilder($domain);
             $this->builder->setUseHttps(true);
 
-            if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
-                $this->builder->setSignKey($token);
+            if ($signingToken) {
+                $this->builder->setSignKey($signingToken);
             }
 
             $imagePath = '';
-            if (count($domainParts) === 2) {
-                $imagePath = rtrim($domainParts[1], '/') . '/';
+            if (!empty($pathPrefix)) {
+                $imagePath = $pathPrefix . '/';
             }
             $imagePath .= $image;
 
@@ -366,6 +374,12 @@ class ImgixModel extends Model
     {
         $parameters = $this->translateAttributes($transform);
 
+        // Apply fit=max to prevent upscaling if enabled and not already set
+        $preventUpscaling = Imgix::$plugin->getSettings()->preventUpscaling;
+        if ($preventUpscaling && !isset($parameters['fit'])) {
+            $parameters['fit'] = 'max';
+        }
+
         return $this->builder->createURL($filename, $parameters);
     }
 
@@ -401,25 +415,48 @@ class ImgixModel extends Model
         }
 
         $ratio = (float)$transform['ratio'];
-        $w = isset($transform['w']) ? $transform['w'] : null;
-        $h = isset($transform['h']) ? $transform['h'] : null;
+        
+        // Check for width parameter (w takes precedence over width)
+        $w = $transform['w'] ?? $transform['width'] ?? null;
+        // Check for height parameter (h takes precedence over height)
+        $h = $transform['h'] ?? $transform['height'] ?? null;
 
-        // If both sizes and ratio is specified, let ratio take control based on width
-        if ($w and $h) {
-            $transform['h'] = round($w / $ratio);
+        // Determine which keys to use for setting calculated values
+        // Use the short form (w/h) if either dimension uses short form, otherwise use long form (width/height)
+        $useShortForm = isset($transform['w']) || isset($transform['h']);
+        $widthKey = $useShortForm ? 'w' : 'width';
+        $heightKey = $useShortForm ? 'h' : 'height';
+        
+        // Normalize: remove alternate form to avoid conflicts
+        if ($widthKey === 'w' && isset($transform['width'])) {
+            unset($transform['width']);
+        } elseif ($widthKey === 'width' && isset($transform['w'])) {
+            unset($transform['w']);
+        }
+        
+        if ($heightKey === 'h' && isset($transform['height'])) {
+            unset($transform['height']);
+        } elseif ($heightKey === 'height' && isset($transform['h'])) {
+            unset($transform['h']);
+        }
+
+        // Calculate dimensions based on ratio
+        if ($w !== null && $h !== null) {
+            // If both sizes and ratio are specified, let ratio take control based on width
+            $transform[$heightKey] = round($w / $ratio);
+        }
+        elseif ($w !== null) {
+            // Calculate height from width and ratio
+            $transform[$heightKey] = round($w / $ratio);
+        }
+        elseif ($h !== null) {
+            // Calculate width from height and ratio
+            $transform[$widthKey] = round($h * $ratio);
         }
         else {
-            if ($w) {
-                $transform['h'] = round($w / $ratio);
-            }
-            elseif ($h) {
-                $transform['w'] = round($h * $ratio);
-            }
-            else {
-                // TODO: log that neither w nor h is specified with ratio
-                // no idea what to do, return
-                return $transform;
-            }
+            // TODO: log that neither w/width nor h/height is specified with ratio
+            // no idea what to do, return
+            return $transform;
         }
 
         unset($transform['ratio']); // remove the ratio setting so that it doesn't gets processed in the URL

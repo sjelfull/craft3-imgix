@@ -70,8 +70,9 @@ class Imgix extends Plugin
             static function (ElementEvent $event) : void {
                 $element = $event->element;
                 $isNewElement = $event->isNew;
-                if ($element instanceof Asset) {
-                    Imgix::$plugin->imgixService->onSaveAsset($element, $isNewElement);
+                // Only purge on the main save, not when propagating to other sites
+                if ($element instanceof Asset && !$isNewElement && !$element->propagating) {
+                    Imgix::$plugin->imgixService->onSaveAsset($element);
                 }
             }
         );
@@ -81,7 +82,8 @@ class Imgix extends Plugin
             Elements::EVENT_BEFORE_DELETE_ELEMENT,
             static function (ElementEvent $event) : void {
                 $element = $event->element;
-                if ($element instanceof Asset) {
+                // Only purge on the main delete, not when propagating to other sites
+                if ($element instanceof Asset && !$element->propagating) {
                     Imgix::$plugin->imgixService->onDeleteAsset($element);
                 }
             }
