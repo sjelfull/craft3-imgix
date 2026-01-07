@@ -44,11 +44,11 @@ Perfect for high-traffic sites that need fast, optimized images without the serv
 
 **Understanding Volume Mapping:**
 
-The `imgixDomains` array maps your Craft volume handles to imgix domains. The plugin looks up the asset's volume handle to determine which imgix domain to use.
+The `imgixDomains` array maps your Craft volume handles to Imgix domains. The plugin looks up the asset's volume handle to determine which Imgix domain to use.
 
 - **Simple mapping:** `'uploads' => 'my-site.imgix.net'` - all assets from the 'uploads' volume use this domain
 - **Path mapping:** `'heroImages' => 'my-site.imgix.net/heroes'` - adds a path prefix to all images
-- **Multiple domains:** You can use different imgix domains for different volumes
+- **Multiple domains:** You can use different Imgix domains for different volumes
 
 ### Environment variables
 
@@ -77,7 +77,7 @@ Copy the `config.php` file from the plugin's `src` directory into your Craft pro
 ```php
 <?php
 return [
-    // Map your Craft volume handles to imgix domains
+    // Map your Craft volume handles to Imgix domains
     'imgixDomains' => [
         'myVolumeHandle' => 'my-site.imgix.net',
     ],
@@ -99,8 +99,8 @@ return [
     // Ensure it has 'Purge' permissions
     'apiKey' => App::env('IMGIX_API_KEY'),
 
-    // Map Craft volume handles to imgix domains (required)
-    // This tells the plugin which imgix domain to use for each asset volume
+    // Map Craft volume handles to Imgix domains (required)
+    // This tells the plugin which Imgix domain to use for each asset volume
     'imgixDomains' => [
         // Format: 'volumeHandle' => 'your-domain.imgix.net'
         'uploads' => 'my-project.imgix.net',
@@ -127,11 +127,55 @@ return [
 
 **Understanding Volume Mapping:**
 
-The `imgixDomains` array maps your Craft volume handles to imgix domains. The plugin looks up the asset's volume handle to determine which imgix domain to use.
+The `imgixDomains` array maps your Craft volume handles to Imgix domains. The plugin looks up the asset's volume handle to determine which Imgix domain to use.
 
 - **Simple mapping:** `'uploads' => 'my-site.imgix.net'` - all assets from the 'uploads' volume use this domain
 - **Path mapping:** `'heroImages' => 'my-site.imgix.net/heroes'` - adds a path prefix to all images
-- **Multiple domains:** You can use different imgix domains for different volumes
+- **Multiple domains:** You can use different Imgix domains for different volumes
+
+### Advanced Configuration (Array Format)
+
+For more control over each domain, you can use the array format to specify domain-specific settings including secure tokens and path prefixes:
+
+```php
+<?php
+
+use craft\helpers\App;
+
+return [
+    'apiKey' => App::env('IMGIX_API_KEY'),
+    
+    'imgixDomains' => [
+        'uploads' => [
+            'domain' => 'my-uploads.imgix.net',
+            'signingToken' => App::env('IMGIX_UPLOADS_TOKEN'),  // Optional: secure token for this domain
+            'path' => 'assets',                                   // Optional: path prefix (no leading/trailing slashes)
+        ],
+        'products' => [
+            'domain' => 'my-products.imgix.net',
+            'signingToken' => App::env('IMGIX_PRODUCTS_TOKEN'),
+        ],
+        // You can mix string and array formats
+        'publicImages' => 'public.imgix.net',
+    ],
+    
+    'lazyLoadPrefix' => 'data-',
+];
+```
+
+**Array format options:**
+
+- `domain` (required): The Imgix domain (e.g., `'my-site.imgix.net'`)
+- `signingToken` (optional): Secure URL token specific to this Imgix source. Each Imgix source has its own token.
+- `path` (optional): Path prefix for all images from this volume (e.g., `'subfolder/path'`). Leading and trailing slashes are automatically handled.
+
+**When to use array format:**
+
+- **Multiple Imgix sources with different secure tokens**: Each Imgix source generates its own secure token. Use the array format to specify a different `signingToken` for each volume.
+- **Per-domain path prefixes**: If different volumes need different path prefixes on the same Imgix domain.
+- **Future extensibility**: The array format allows for additional per-domain options in future updates.
+
+**Note:** The `imgixSignedToken` configuration option is deprecated. Use `signingToken` within the `imgixDomains` array format instead. The legacy option is still supported for backward compatibility.
 
 ### Environment variables
 
@@ -140,9 +184,14 @@ It's recommended to store sensitive values like API keys in environment variable
 ```bash
 IMGIX_API_KEY="your-api-key-here"
 IMGIX_SIGNED_TOKEN="your-signed-token-here"
+# For array format with multiple tokens:
+IMGIX_UPLOADS_TOKEN="token-for-uploads-source"
+IMGIX_PRODUCTS_TOKEN="token-for-products-source"
 ```
 
 Then reference them in `config/imgix.php`:
+
+### Basic Configuration (String Format)
 
 ```php
 <?php
@@ -580,9 +629,11 @@ If you need to override this behavior for specific transformations, you can expl
 **Problem:** Getting 403 errors or signature mismatches.
 
 **Solutions:**
-1. Verify your `imgixSignedToken` matches the token in your Imgix source settings
-2. Make sure URL signing is enabled in your Imgix source
-3. Check for trailing/leading whitespace in your token
+1. **For array format**: Verify the `signingToken` in your volume's array configuration matches the token in your Imgix source settings
+2. **For legacy format**: Verify your `imgixSignedToken` matches the token in your Imgix source settings
+3. Make sure URL signing is enabled in your Imgix source
+4. Check for trailing/leading whitespace in your token
+5. **Multiple sources**: If using multiple Imgix sources, ensure each volume has the correct `signingToken` specified in the array format (each source has its own token)
 
 ### Purging not working
 

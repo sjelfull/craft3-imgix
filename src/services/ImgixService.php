@@ -194,28 +194,26 @@ class ImgixService extends Component
         $source = $asset->getVolume();
         $sourceHandle = $source->handle;
 
-        $domains = $this->settings->imgixDomains;
-        $domain = array_key_exists($sourceHandle, $domains) ? $domains[ $sourceHandle ] : null;
-        $domainParts = [];
-        if ($domain !== null) {
-            $domainParts = explode('/', $domain, 2);
-            $domain = $domainParts[0];
-        }
+        $domainConfig = $this->settings->getDomainConfig($sourceHandle);
 
-        $assetPath = '';
-        if (count($domainParts) === 2) {
-            $assetPath = rtrim($domainParts[1], '/') . '/';
-        }
-        $assetPath .= $asset->getPath();
-
-        if (!isset($domains[ $source->handle ])) {
+        if ($domainConfig === null) {
             return null;
         }
 
+        $domain = $domainConfig['domain'];
+        $signingToken = $domainConfig['signingToken'];
+        $pathPrefix = $domainConfig['path'];
+
+        $assetPath = '';
+        if (!empty($pathPrefix)) {
+            $assetPath = $pathPrefix . '/';
+        }
+        $assetPath .= $asset->getPath();
+
         $builder = new UrlBuilder($domain);
         $builder->setUseHttps(true);
-        if ($token = Imgix::$plugin->getSettings()->imgixSignedToken) {
-            $builder->setSignKey($token);
+        if ($signingToken) {
+            $builder->setSignKey($signingToken);
         }
         $url = UrlHelper::stripQueryString($builder->createURL($assetPath));
 

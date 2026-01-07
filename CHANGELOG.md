@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 
 ## [Unreleased]
 
+### Added
+- Added support for per-domain configuration including signing tokens and path prefixes via array format in `imgixDomains`
+
+### Deprecated
+- Deprecated `imgixSignedToken` configuration option in favor of using `signingToken` within `imgixDomains` array format
+
 ### Fixed
 - Fixed duplicate PURGE requests against Imgix API in multisite setups by only purging on the main save/delete operation, not during propagation to other sites
 - Fixed "Undefined index" error when passing plain URL strings for transformation with the recommended config format
