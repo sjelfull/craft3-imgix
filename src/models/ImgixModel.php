@@ -217,6 +217,19 @@ class ImgixModel extends Model
             if ($domainConfig === null) {
                 throw new Exception(Craft::t('imgix', 'Unable to get domain configuration.'));
             }
+          
+            $domain = $firstHandle !== null ? $domains[$firstHandle] : null;
+            $domainParts = [];
+            
+            if ($domain === null) {
+                // No domain configured, just passthrough the URL string
+                $this->transformed = ['url' => $image];
+                
+                return;
+            }
+            
+            $domainParts = explode('/', $domain, 2);
+            $domain = $domainParts[0];
 
             $domain = $domainConfig['domain'];
             $signingToken = $domainConfig['signingToken'];
@@ -373,6 +386,12 @@ class ImgixModel extends Model
     private function buildTransform($filename, $transform)
     {
         $parameters = $this->translateAttributes($transform);
+
+        // Apply fit=max to prevent upscaling if enabled and not already set
+        $preventUpscaling = Imgix::$plugin->getSettings()->preventUpscaling;
+        if ($preventUpscaling && !isset($parameters['fit'])) {
+            $parameters['fit'] = 'max';
+        }
 
         return $this->builder->createURL($filename, $parameters);
     }
